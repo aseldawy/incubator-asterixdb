@@ -19,6 +19,7 @@
 package org.apache.asterix.api.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.EnumSet;
 
 import org.apache.asterix.common.config.GlobalConfig;
@@ -133,8 +134,10 @@ public class AsterixHyracksIntegrationUtil {
      *
      * @param args
      *            unused
+     * @throws IOException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        Runtime.getRuntime().exec("/bin/bash /home/eldawy/cleanup.sh");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 try {

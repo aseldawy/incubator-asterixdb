@@ -121,6 +121,7 @@ import org.apache.hyracks.algebricks.rewriter.rules.RemoveUnusedAssignAndAggrega
 import org.apache.hyracks.algebricks.rewriter.rules.SetAlgebricksPhysicalOperatorsRule;
 import org.apache.hyracks.algebricks.rewriter.rules.SetExecutionModeRule;
 import org.apache.hyracks.algebricks.rewriter.rules.SimpleUnnestToProductRule;
+import org.apache.hyracks.algebricks.rewriter.rules.SpatialJoinRule;
 import org.apache.hyracks.algebricks.rewriter.rules.SubplanOutOfGroupRule;
 
 public final class RuleCollections {
@@ -177,6 +178,7 @@ public final class RuleCollections {
     public final static List<IAlgebraicRewriteRule> buildCondPushDownAndJoinInferenceRuleCollection() {
         List<IAlgebraicRewriteRule> condPushDownAndJoinInference = new LinkedList<IAlgebraicRewriteRule>();
 
+        condPushDownAndJoinInference.add(new SpatialJoinRule());
         condPushDownAndJoinInference.add(new PushSelectDownRule());
         condPushDownAndJoinInference.add(new PushSortDownRule());
         condPushDownAndJoinInference.add(new RemoveRedundantListifyRule());
