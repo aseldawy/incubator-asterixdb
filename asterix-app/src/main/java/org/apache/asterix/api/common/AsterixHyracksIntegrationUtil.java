@@ -170,10 +170,8 @@ public class AsterixHyracksIntegrationUtil {
      *
      * @param args
      *            unused
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
-        Runtime.getRuntime().exec("/bin/bash /home/eldawy/cleanup.sh");
+    public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

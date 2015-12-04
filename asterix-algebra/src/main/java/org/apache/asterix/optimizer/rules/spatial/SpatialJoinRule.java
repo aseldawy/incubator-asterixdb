@@ -76,16 +76,8 @@ public class SpatialJoinRule implements IAlgebraicRewriteRule {
         // At this point, we can apply the spatial join plan
         // For each input, Create the subplan (Tokenize -> HashPartition -> HashExchange -> Sort)
         // TODO retrieve grid information.
-        double gx1 = -180, gx2 = 180, gy1 = -90, gy2 = 90;
-        int columns = 36, rows = 18;
-        UniformGridRectangleTokenizerFactory tokenizerFactory = new UniformGridRectangleTokenizerFactory(gx1, gy1, gx2,
-                gy2, columns, rows);
-        for (Mutable<ILogicalExpression> operand : fexp.getArguments()) {
-            TokenizeOperator tokenizeOp = new TokenizeOperator(operand.getValue(), tokenizerFactory);
-        }
+        // TODO For the two inputs, apply the plane-sweep join
 
-        // For the two inputs, apply the planes-sweep join
-        // TODO Auto-generated method stub
         return false;
     }
 
