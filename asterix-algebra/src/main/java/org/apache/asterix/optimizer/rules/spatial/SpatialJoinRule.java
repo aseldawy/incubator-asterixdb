@@ -69,8 +69,8 @@ public class SpatialJoinRule implements IAlgebraicRewriteRule {
         IVariableTypeEnvironment typeEnv = context.getOutputTypeEnvironment(op);
         for (Mutable<ILogicalExpression> operand : fexp.getArguments()) {
             Object type = typeEnv.getType(operand.getValue());
-            if (operand != BuiltinType.ARECTANGLE)
-                //if (!operand.toString().equals("RECTANGLE"))
+            if (type != BuiltinType.ARECTANGLE)
+                //if (!type.toString().equals("RECTANGLE"))
                 return false;
         }
         // At this point, we can apply the spatial join plan
