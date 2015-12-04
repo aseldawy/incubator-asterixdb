@@ -211,6 +211,11 @@ public final class NonTaggedFormatUtil {
 
     public static IBinaryTokenizerFactory getBinaryTokenizerFactory(ATypeTag keyType, IndexType indexType,
             int gramLength) throws AlgebricksException {
+        if (indexType == null) {
+            // For now, assume that a null index type means we are dealing with
+            // a non-indexing tokenizer which is currently used only for spatial join
+            return AqlBinaryTokenizerFactoryProvider.INSTANCE.getSpatialTokenizerFactory(keyType);
+        }
         switch (indexType) {
             case SINGLE_PARTITION_WORD_INVIX:
             case LENGTH_PARTITIONED_WORD_INVIX: {

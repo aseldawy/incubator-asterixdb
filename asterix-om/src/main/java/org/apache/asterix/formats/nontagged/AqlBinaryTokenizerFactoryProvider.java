@@ -22,6 +22,7 @@ import org.apache.asterix.dataflow.data.common.AListElementTokenFactory;
 import org.apache.asterix.dataflow.data.common.AOrderedListBinaryTokenizerFactory;
 import org.apache.asterix.dataflow.data.common.AUnorderedListBinaryTokenizerFactory;
 import org.apache.asterix.dataflow.data.common.IBinaryTokenizerFactoryProvider;
+import org.apache.asterix.dataflow.data.spatial.UniformGridRectangleTokenizerFactory;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.hyracks.storage.am.lsm.invertedindex.tokenizers.DelimitedUTF8StringBinaryTokenizerFactory;
 import org.apache.hyracks.storage.am.lsm.invertedindex.tokenizers.HashedUTF8WordTokenFactory;
@@ -89,6 +90,23 @@ public class AqlBinaryTokenizerFactoryProvider implements IBinaryTokenizerFactor
             default: {
                 return null;
             }
+        }
+    }
+
+    /**
+     * Create a spatial tokenizer factor for the given type.
+     * 
+     * @param typeTag
+     * @return
+     */
+    public IBinaryTokenizerFactory getSpatialTokenizerFactory(ATypeTag typeTag) {
+        double gx1 = -180, gy1 = -90, gx2 = 180, gy2 = 90;
+        int columns = 36, rows = 18;
+        switch (typeTag) {
+            case RECTANGLE:
+                return new UniformGridRectangleTokenizerFactory(gx1, gy1, gx2, gy2, columns, rows);
+            default:
+                throw new RuntimeException("No supported tokenizer factory for type " + typeTag);
         }
     }
 }

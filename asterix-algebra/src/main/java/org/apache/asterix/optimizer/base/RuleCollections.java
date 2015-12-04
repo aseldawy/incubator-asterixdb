@@ -72,6 +72,7 @@ import org.apache.asterix.optimizer.rules.UnnestToDataScanRule;
 import org.apache.asterix.optimizer.rules.am.IntroduceJoinAccessMethodRule;
 import org.apache.asterix.optimizer.rules.am.IntroduceLSMComponentFilterRule;
 import org.apache.asterix.optimizer.rules.am.IntroduceSelectAccessMethodRule;
+import org.apache.asterix.optimizer.rules.spatial.SpatialJoinRule;
 import org.apache.asterix.optimizer.rules.temporal.TranslateIntervalExpressionRule;
 import org.apache.hyracks.algebricks.core.rewriter.base.HeuristicOptimizer;
 import org.apache.hyracks.algebricks.core.rewriter.base.IAlgebraicRewriteRule;
@@ -121,7 +122,6 @@ import org.apache.hyracks.algebricks.rewriter.rules.RemoveUnusedAssignAndAggrega
 import org.apache.hyracks.algebricks.rewriter.rules.SetAlgebricksPhysicalOperatorsRule;
 import org.apache.hyracks.algebricks.rewriter.rules.SetExecutionModeRule;
 import org.apache.hyracks.algebricks.rewriter.rules.SimpleUnnestToProductRule;
-import org.apache.hyracks.algebricks.rewriter.rules.SpatialJoinRule;
 import org.apache.hyracks.algebricks.rewriter.rules.SubplanOutOfGroupRule;
 
 public final class RuleCollections {
