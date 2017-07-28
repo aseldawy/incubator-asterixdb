@@ -198,5 +198,9 @@
       <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.esri.geometry</groupId>
+      <artifactId>esri-geometry-api</artifactId>
+    </dependency>
   </dependencies>
 </project>

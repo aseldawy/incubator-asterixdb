@@ -268,6 +268,7 @@ import org.apache.asterix.runtime.evaluators.functions.records.FieldAccessByName
 import org.apache.asterix.runtime.evaluators.functions.records.FieldAccessNestedDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.GetRecordFieldValueDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.GetRecordFieldsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.records.ParseGeoJSONDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.RecordAddFieldsDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.RecordMergeDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.RecordPairsDescriptor;
@@ -708,6 +709,9 @@ public final class FunctionCollection {
 
         // Record function
         functionsToInjectUnkownHandling.add(RecordPairsDescriptor.FACTORY);
+
+        //GeoJSON
+        functionsToInjectUnkownHandling.add(ParseGeoJSONDescriptor.FACTORY);
 
         List<IFunctionDescriptorFactory> generatedFactories = new ArrayList<>();
         for (IFunctionDescriptorFactory factory : functionsToInjectUnkownHandling) {

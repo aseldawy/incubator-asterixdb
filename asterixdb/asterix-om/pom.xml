@@ -122,5 +122,9 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.esri.geometry</groupId>
+      <artifactId>esri-geometry-api</artifactId>
+    </dependency>
   </dependencies>
 </project>

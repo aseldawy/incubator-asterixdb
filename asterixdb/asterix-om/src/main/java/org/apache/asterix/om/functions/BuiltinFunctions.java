@@ -36,6 +36,7 @@ import org.apache.asterix.om.typecomputer.impl.ADayTimeDurationTypeComputer;
 import org.apache.asterix.om.typecomputer.impl.ADoubleTypeComputer;
 import org.apache.asterix.om.typecomputer.impl.ADurationTypeComputer;
 import org.apache.asterix.om.typecomputer.impl.AFloatTypeComputer;
+import org.apache.asterix.om.typecomputer.impl.AGeometryTypeComputer;
 import org.apache.asterix.om.typecomputer.impl.AInt16TypeComputer;
 import org.apache.asterix.om.typecomputer.impl.AInt32TypeComputer;
 import org.apache.asterix.om.typecomputer.impl.AInt64TypeComputer;
@@ -196,6 +197,8 @@ public class BuiltinFunctions {
             "get-object-field-value", 2);
     public static final FunctionIdentifier RECORD_PAIRS = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "object-pairs", FunctionIdentifier.VARARGS);
+    public static final FunctionIdentifier GEOMETRY_CONSTRUCTOR =
+            new FunctionIdentifier(FunctionConstants.ASTERIX_NS, "parse-geojson", FunctionIdentifier.VARARGS);
 
     // numeric
     public static final FunctionIdentifier NUMERIC_UNARY_MINUS = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
@@ -1110,6 +1113,7 @@ public class BuiltinFunctions {
         addFunction(GET_RECORD_FIELDS, OrderedListOfAnyTypeComputer.INSTANCE, true);
         addFunction(GET_RECORD_FIELD_VALUE, FieldAccessNestedResultType.INSTANCE, true);
         addFunction(RECORD_PAIRS, RecordPairsTypeComputer.INSTANCE, true);
+        addFunction(GEOMETRY_CONSTRUCTOR, AGeometryTypeComputer.INSTANCE, true);
 
         // temporal type accessors
         addFunction(ACCESSOR_TEMPORAL_YEAR, AInt64TypeComputer.INSTANCE, true);
