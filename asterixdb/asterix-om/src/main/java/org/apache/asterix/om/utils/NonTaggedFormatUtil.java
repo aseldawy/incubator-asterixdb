@@ -69,6 +69,7 @@ public final class NonTaggedFormatUtil {
             case ARRAY:
             case MULTISET:
             case POLYGON:
+            case GEOMETRY:
             case ANY:
                 return false;
             default:

@@ -18,15 +18,15 @@
  */
 package org.apache.asterix.dataflow.data.nontagged.printers.json.clean;
 
-import com.esri.core.geometry.OperatorImportFromWkb;
-import com.esri.core.geometry.SpatialReference;
 import com.esri.core.geometry.ogc.OGCGeometry;
+import org.apache.asterix.dataflow.data.nontagged.serde.AGeometrySerializerDeserializer;
 import org.apache.hyracks.algebricks.data.IPrinter;
 import org.apache.hyracks.algebricks.data.IPrinterFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.PrintStream;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class AGeometryPrinterFactory implements IPrinterFactory {
 
@@ -34,11 +34,9 @@ public class AGeometryPrinterFactory implements IPrinterFactory {
     public static final AGeometryPrinterFactory INSTANCE = new AGeometryPrinterFactory();
 
     public static final IPrinter PRINTER = (byte[] b, int s, int l, PrintStream ps) -> {
-        byte[] data = Arrays.copyOfRange(b, s + 5, s + l);
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        OGCGeometry geometry = OGCGeometry
-                .createFromOGCStructure(OperatorImportFromWkb.local().executeOGC(0, buffer, null),
-                        SpatialReference.create(4326));
+        ByteArrayInputStream inStream = new ByteArrayInputStream(b, s + 1, l - 1);
+        DataInput dataIn = new DataInputStream(inStream);
+        OGCGeometry geometry = AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn).getGeometry();
         ps.print(geometry.asGeoJson());
     };
 

@@ -17,9 +17,24 @@
  ! under the License.
  !-->
 <test-group name="geojson">
-  <test-case FilePath="geojson">
-    <compilation-unit name="datatype">
-      <output-dir compare="Text">datatype</output-dir>
-    </compilation-unit>
-  </test-case>
+    <test-case FilePath="geojson">
+        <compilation-unit name="datatype">
+            <output-dir compare="Text">datatype</output-dir>
+        </compilation-unit>
+    </test-case>
+    <test-case FilePath="geojson">
+        <compilation-unit name="constructors">
+            <output-dir compare="Text">constructors</output-dir>
+        </compilation-unit>
+    </test-case>
+    <test-case FilePath="geojson">
+        <compilation-unit name="spatial_predicates">
+            <output-dir compare="Text">spatial_predicates</output-dir>
+        </compilation-unit>
+    </test-case>
+    <test-case FilePath="geojson">
+        <compilation-unit name="spatial_aggregates">
+            <output-dir compare="Text">spatial_aggregates</output-dir>
+        </compilation-unit>
+    </test-case>
 </test-group>
