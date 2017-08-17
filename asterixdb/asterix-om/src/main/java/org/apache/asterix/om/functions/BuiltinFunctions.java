@@ -755,7 +755,7 @@ public class BuiltinFunctions {
     public static final FunctionIdentifier  SCALAR_ST_UNITON_AGG = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-union", 1);
     public static final FunctionIdentifier ST_UNITON_AGG = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
-            "st-union", 1);
+            "st-union-agg", 1);
     public static final FunctionIdentifier ST_GEOM_FROM_TEXT = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-geom-from-text", 1);
     public static final FunctionIdentifier ST_GEOM_FROM_TEXT_SRID = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
@@ -796,6 +796,8 @@ public class BuiltinFunctions {
             "st-intersection", 2);
     public static final FunctionIdentifier ST_SYM_DIFFERENCE = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-sym-difference", 2);
+    public static final FunctionIdentifier ST_POLYGONIZE = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
+            "st-polygonize", 1);
 
     // Spatial and temporal type accessors
     public static final FunctionIdentifier ACCESSOR_TEMPORAL_YEAR = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
@@ -1270,6 +1272,7 @@ public class BuiltinFunctions {
         addFunction(ST_SYM_DIFFERENCE, AGeometryTypeComputer.INSTANCE, true);
         addFunction(SCALAR_ST_UNITON_AGG, AGeometryTypeComputer.INSTANCE, true);
         addPrivateFunction(ST_UNITON_AGG, AGeometryTypeComputer.INSTANCE, true);
+        addFunction(ST_POLYGONIZE, AGeometryTypeComputer.INSTANCE, true);
 
         // Binary functions
         addFunction(BINARY_HEX_CONSTRUCTOR, ABinaryTypeComputer.INSTANCE, true);

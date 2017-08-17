@@ -623,6 +623,7 @@ public final class FunctionCollection {
         functionsToInjectUnkownHandling.add(STDifferenceDescriptor.FACTORY);
         functionsToInjectUnkownHandling.add(STIntersectionDescriptor.FACTORY);
         functionsToInjectUnkownHandling.add(STSymDifferenceDescriptor.FACTORY);
+        functionsToInjectUnkownHandling.add(STPolygonizeDescriptor.FACTORY);
 
         List<IFunctionDescriptorFactory> generatedFactories = new ArrayList<>();
         for (IFunctionDescriptorFactory factory : functionsToInjectUnkownHandling) {
