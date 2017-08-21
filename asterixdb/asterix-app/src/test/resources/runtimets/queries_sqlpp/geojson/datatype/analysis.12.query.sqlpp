@@ -16,5 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+use GeoJSON;
 
-st_make_point(1.0,2.0,3.0);
+SELECT VALUE {"Union": st_union(geo.myGeometry, geo1.myGeometry),"Intersection":st_intersection(geo.myGeometry,geo1.myGeometry),"SymDifference":st_sym_difference(geo.myGeometry,geo1.myGeometry)} FROM Geometries geo, Geometries geo1 WHERE geometry_type(geo.myGeometry)!=geometry_type(geo1.myGeometry) LIMIT 20;

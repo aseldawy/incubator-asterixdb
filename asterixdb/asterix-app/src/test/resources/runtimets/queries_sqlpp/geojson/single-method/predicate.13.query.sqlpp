@@ -16,6 +16,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-use GeoJSON;
 
-SELECT st_area(geo.myGeometry) AS area FROM Geometries AS geo;
+st_is_collection(st_polygonize([st_geom_from_text("LINESTRING(1 1,2 2,3 3,4 4, 5 5,6 6)"), st_geom_from_text("LINESTRING(0 2,1 2,2 2,3 3,4 2,5 2)")]));

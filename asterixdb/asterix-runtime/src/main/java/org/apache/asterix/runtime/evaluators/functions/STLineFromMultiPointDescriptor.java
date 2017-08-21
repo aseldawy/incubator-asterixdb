@@ -22,6 +22,7 @@ import com.esri.core.geometry.Point;
 import com.esri.core.geometry.Polyline;
 import com.esri.core.geometry.SpatialReference;
 import com.esri.core.geometry.ogc.OGCGeometry;
+import com.esri.core.geometry.ogc.OGCLineString;
 import com.esri.core.geometry.ogc.OGCMultiLineString;
 import com.esri.core.geometry.ogc.OGCMultiPoint;
 import org.apache.asterix.om.functions.BuiltinFunctions;
@@ -50,7 +51,7 @@ public class STLineFromMultiPointDescriptor extends AbstractSTSingleGeometryDesc
             for (int i = 1; i < numPoints; i++) {
                 polyline.lineTo((Point) multiPoint.geometryN(i).getEsriGeometry());
             }
-            return new OGCMultiLineString(polyline, SpatialReference.create(4326));
+            return new OGCLineString(polyline, 0, SpatialReference.create(4326));
         } else {
             throw new HyracksDataException("This function expects a MultiPoint geometry type");
         }

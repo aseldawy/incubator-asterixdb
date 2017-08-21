@@ -16,4 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-st_make_point(1.0,2.0,3.0,4.0);
+use GeoJSON;
+
+SELECT st_length(geo.myGeometry) FROM Geometries geo WHERE geometry_type(geo.myGeometry)="LineString" OR geometry_type(geo.myGeometry)="MultiLineString";

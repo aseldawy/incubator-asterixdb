@@ -41,7 +41,7 @@ public class STNumInteriorRingsDescriptor extends AbstractSTSingleGeometryDescri
         if (geometry instanceof OGCPolygon) {
             return ((OGCPolygon) geometry).numInteriorRing();
         } else {
-            return null;
+            throw new HyracksDataException("This function expects a point geometry type");
         }
     }
 

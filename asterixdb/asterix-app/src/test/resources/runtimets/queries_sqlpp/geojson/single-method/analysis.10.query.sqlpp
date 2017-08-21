@@ -16,5 +16,4 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-st_make_point(-71.1043443253471, 42.3150676015829);
+st_geometry_n(st_geom_from_text('GEOMETRYCOLLECTION(MULTIPOINT(-2 3 , -2 2),LINESTRING(5 5 ,10 10),POLYGON((-7 4.2,-7.1 5,-7.1 4.3,-7 4.2)))'),2);
