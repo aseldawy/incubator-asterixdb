@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-use GeoJSON;
+use GeoJSON1;
 
 INSERT INTO Geometries ([
 {"id": 123, "myGeometry1": st_geom_from_text('LINESTRING(0 0, 1 1, 0 2)'), "myGeometry2": st_geom_from_text('POINT(0 2)')},

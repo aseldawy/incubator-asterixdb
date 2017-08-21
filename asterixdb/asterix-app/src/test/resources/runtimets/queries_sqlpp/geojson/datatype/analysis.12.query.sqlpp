@@ -18,4 +18,4 @@
  */
 use GeoJSON;
 
-SELECT VALUE {"Union": st_union(geo.myGeometry, geo1.myGeometry),"Intersection":st_intersection(geo.myGeometry,geo1.myGeometry),"SymDifference":st_sym_difference(geo.myGeometry,geo1.myGeometry)} FROM Geometries geo, Geometries geo1 WHERE geometry_type(geo.myGeometry)!=geometry_type(geo1.myGeometry) LIMIT 20;
+SELECT VALUE {"PointN": st_point_n(geo.myGeometry,1), "StartPoint":st_start_point(geo.myGeometry),"Envelope":st_envelope(geo.myGeometry)} FROM Geometries geo WHERE geometry_type(geo.myGeometry)="LineString";

@@ -18,4 +18,4 @@
  */
 use GeoJSON;
 
-SELECT VALUE {"NumInteriorRings":st_num_interior_rings(geo.myGeometry)}  FROM Geometries geo WHERE geometry_type(geo.myGeometry)="Polygon" ;
+SELECT VALUE {"NumInteriorRings":st_num_interior_rings(geo.myGeometry), "ExteriorRing":st_exterior_ring(geo.myGeometry)}  FROM Geometries geo WHERE geometry_type(geo.myGeometry)="Polygon";

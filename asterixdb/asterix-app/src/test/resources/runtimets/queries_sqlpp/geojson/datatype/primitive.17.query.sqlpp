@@ -18,4 +18,4 @@
  */
 use GeoJSON;
 
-SELECT VALUE {"PointN": st_point_n(geo.myGeometry,1), "StartPoint":st_start_point(geo.myGeometry),"Envelope":st_envelope(geo.myGeometry)} FROM Geometries geo WHERE geometry_type(geo.myGeometry)="LineString";
+SELECT VALUE {"IsClosed":st_is_closed(geo.myGeometry), "IsCollection":st_is_collection(geo.myGeometry),"IsEmpty":st_is_empty(geo.myGeometry), "IsSimple":st_is_simple(geo.myGeometry)} FROM Geometries geo;

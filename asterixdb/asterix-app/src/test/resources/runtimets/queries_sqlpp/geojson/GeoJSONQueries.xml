@@ -23,18 +23,13 @@
         </compilation-unit>
     </test-case>
     <test-case FilePath="geojson">
-        <compilation-unit name="constructors">
-            <output-dir compare="Text">constructors</output-dir>
+        <compilation-unit name="single-method">
+            <output-dir compare="Text">single-method</output-dir>
         </compilation-unit>
     </test-case>
     <test-case FilePath="geojson">
-        <compilation-unit name="spatial_predicates">
-            <output-dir compare="Text">spatial_predicates</output-dir>
-        </compilation-unit>
-    </test-case>
-    <test-case FilePath="geojson">
-        <compilation-unit name="spatial_aggregates">
-            <output-dir compare="Text">spatial_aggregates</output-dir>
+        <compilation-unit name="two-geometries">
+            <output-dir compare="Text">two-geometries</output-dir>
         </compilation-unit>
     </test-case>
 </test-group>

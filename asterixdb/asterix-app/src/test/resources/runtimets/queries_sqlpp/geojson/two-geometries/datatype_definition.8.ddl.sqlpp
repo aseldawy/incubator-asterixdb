@@ -24,7 +24,7 @@ use GeoJSON1;
 
 CREATE TYPE GeometryType AS{
   id : int,
-  myGeometry1 : geometry
+  myGeometry1 : geometry,
   myGeometry2 : geometry
 };
 

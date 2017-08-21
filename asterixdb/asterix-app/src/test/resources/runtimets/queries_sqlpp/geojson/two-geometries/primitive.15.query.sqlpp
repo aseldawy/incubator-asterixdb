@@ -16,6 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-use GeoJSON;
+use GeoJSON1;
 
- st_distance(geo.myGeometry, geo1.myGeometry),"Intersects":st_intersects(geo.myGeometry,geo1.myGeometry),"Contains":st_contains(geo.myGeometry, geo1.myGeometry),"Crosses":st_crosses(geo.myGeometry, geo1.myGeometry),"Disjoint":st_disjoint(geo.myGeometry, geo1.myGeometry),"Equals":st_equals(geo.myGeometry,geo1.myGeometry),"Overlaps":st_overlaps(geo.myGeometry,geo1.myGeometry),"Relate":st_relate(geo.myGeometry,geo1.myGeometry,"FF1FF0102"),"Touches":st_touches(geo.myGeometry, geo1.myGeometry),"Within":st_within(geo.myGeometry,geo1.myGeometry)} FROM Geometries geo, Geometries geo1 WHERE geometry_type(geo.myGeometry)!=geometry_type(geo1.myGeometry);
+SELECT VALUE {"Distance":st_distance(geo.myGeometry1, geo.myGeometry2), "Intersects":st_intersects(geo.myGeometry1,
+geo.myGeometry2), "Contains":st_contains(geo.myGeometry1, geo.myGeometry2), "Crosses":st_crosses(geo.myGeometry1,
+geo.myGeometry2), "Disjoint":st_disjoint(geo.myGeometry1, geo.myGeometry2), "Equals":st_equals(geo.myGeometry1,
+geo.myGeometry2), "Overlaps":st_overlaps(geo.myGeometry1, geo.myGeometry2), "Relate":st_relate(geo.myGeometry1,
+geo.myGeometry2, "FF1FF0102"), "Touches":st_touches(geo.myGeometry1, geo.myGeometry2), "Within":st_within(
+geo.myGeometry1, geo.myGeometry2)} FROM Geometries geo;
