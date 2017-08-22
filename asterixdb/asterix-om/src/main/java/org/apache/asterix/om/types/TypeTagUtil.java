@@ -88,6 +88,8 @@ public class TypeTagUtil {
                 return AUnorderedListType.FULLY_OPEN_UNORDEREDLIST_TYPE;
             case ARRAY:
                 return AOrderedListType.FULL_OPEN_ORDEREDLIST_TYPE;
+            case GEOMETRY:
+                return BuiltinType.AGEOMETRY;
             default:
                 throw new AsterixException("Typetag " + typeTag + " is not a built-in type");
         }

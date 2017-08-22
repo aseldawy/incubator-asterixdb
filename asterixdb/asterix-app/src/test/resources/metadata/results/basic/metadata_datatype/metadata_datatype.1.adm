@@ -47,6 +47,7 @@
 { "DataverseName": "Metadata", "DatatypeName": "double", "Timestamp": "Fri Oct 21 10:29:21 PDT 2016" }
 { "DataverseName": "Metadata", "DatatypeName": "duration", "Timestamp": "Fri Oct 21 10:29:21 PDT 2016" }
 { "DataverseName": "Metadata", "DatatypeName": "float", "Timestamp": "Fri Oct 21 10:29:21 PDT 2016" }
+{ "DataverseName": "Metadata", "DatatypeName": "geometry", "Timestamp": "Wed Jun 14 14:50:26 IST 2017" }
 { "DataverseName": "Metadata", "DatatypeName": "int16", "Timestamp": "Fri Oct 21 10:29:21 PDT 2016" }
 { "DataverseName": "Metadata", "DatatypeName": "int32", "Timestamp": "Fri Oct 21 10:29:21 PDT 2016" }
 { "DataverseName": "Metadata", "DatatypeName": "int64", "Timestamp": "Fri Oct 21 10:29:21 PDT 2016" }

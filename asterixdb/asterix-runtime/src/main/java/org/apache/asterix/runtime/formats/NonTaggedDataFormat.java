@@ -544,6 +544,22 @@ public class NonTaggedDataFormat implements IDataFormat {
                 }
             }
         });
+        functionTypeInferers.put(BuiltinFunctions.GEOMETRY_CONSTRUCTOR, new FunctionTypeInferer() {
+            @Override
+            public void infer(ILogicalExpression expr, IFunctionDescriptor fd, IVariableTypeEnvironment context)
+                    throws AlgebricksException {
+                AbstractFunctionCallExpression fce = (AbstractFunctionCallExpression) expr;
+                IAType t = (IAType) context.getType(fce.getArguments().get(0).getValue());
+                ATypeTag typeTag = t.getTypeTag();
+                if (typeTag.equals(ATypeTag.OBJECT)) {
+                    fd.setImmutableStates(t);
+                } else if (typeTag.equals(ATypeTag.ANY)) {
+                    fd.setImmutableStates(RecordUtil.FULLY_OPEN_RECORD_TYPE);
+                } else {
+                    throw new NotImplementedException("parse-geojson for data of type " + t);
+                }
+            }
+        });
         functionTypeInferers.put(BuiltinFunctions.GET_RECORD_FIELD_VALUE, new FunctionTypeInferer() {
             @Override
             public void infer(ILogicalExpression expr, IFunctionDescriptor fd, IVariableTypeEnvironment context)
