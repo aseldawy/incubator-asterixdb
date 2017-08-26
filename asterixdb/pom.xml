@@ -240,11 +240,6 @@
         <configuration>
           <failOnWarning>true</failOnWarning>
           <outputXML>true</outputXML>
-          <ignoredUsedUndeclaredDependencies>
-            <ignoredUsedUndeclaredDependency>org.json:json:*</ignoredUsedUndeclaredDependency>
-            <ignoredUsedUndeclaredDependency>stax:stax-api:*</ignoredUsedUndeclaredDependency>
-            <ignoredUsedUndeclaredDependency>javax.xml.bind:jaxb-api:*</ignoredUsedUndeclaredDependency>
-          </ignoredUsedUndeclaredDependencies>
         </configuration>
         <executions>
           <execution>
