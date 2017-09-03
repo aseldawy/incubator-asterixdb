@@ -1,9 +1,0 @@
-* text=auto
-*.java	text
-*.xml	text
-
-#
-# Binary specific files
-#
-resouces/*	binary
-*.jar	binary
