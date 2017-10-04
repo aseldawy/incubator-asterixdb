@@ -69,7 +69,7 @@ import org.apache.hyracks.control.common.ipc.CCNCFunctions;
 import org.apache.hyracks.control.common.ipc.ClusterControllerRemoteProxy;
 import org.apache.hyracks.control.common.ipc.IControllerRemoteProxyIPCEventListener;
 import org.apache.hyracks.control.common.job.profiling.om.JobProfile;
-import org.apache.hyracks.control.common.utils.PidHelper;
+import org.apache.hyracks.util.PidHelper;
 import org.apache.hyracks.control.common.work.FutureValue;
 import org.apache.hyracks.control.common.work.WorkQueue;
 import org.apache.hyracks.control.nc.application.NCServiceContext;
@@ -89,6 +89,7 @@ import org.apache.hyracks.ipc.exceptions.IPCException;
 import org.apache.hyracks.ipc.impl.IPCSystem;
 import org.apache.hyracks.net.protocols.muxdemux.FullFrameChannelInterfaceFactory;
 import org.apache.hyracks.net.protocols.muxdemux.MuxDemuxPerformanceCounters;
+import org.apache.hyracks.util.ExitUtil;
 import org.kohsuke.args4j.CmdLineException;
 
 public class NodeControllerService implements IControllerService {
@@ -124,7 +125,7 @@ public class NodeControllerService implements IControllerService {
 
     private final Map<JobId, Joblet> jobletMap;
 
-    private final Map<JobId, ActivityClusterGraph> preDistributedJobActivityClusterGraphMap;
+    private final Map<JobId, ActivityClusterGraph> preDistributedJobs;
 
     private ExecutorService executor;
 
@@ -166,6 +167,10 @@ public class NodeControllerService implements IControllerService {
 
     private final AtomicLong maxJobId = new AtomicLong(-1);
 
+    static {
+        ExitUtil.init();
+    }
+
     public NodeControllerService(NCConfig config) throws Exception {
         this(config, getApplication(config));
     }
@@ -189,12 +194,12 @@ public class NodeControllerService implements IControllerService {
         // Set shutdown hook before so it doesn't have the same uncaught exception handler
         Runtime.getRuntime().addShutdownHook(new NCShutdownHook(this));
         Thread.currentThread().setUncaughtExceptionHandler(getLifeCycleComponentManager());
-        ioManager =
-                new IOManager(IODeviceHandle.getDevices(ncConfig.getIODevices()), application.getFileDeviceResolver());
+        ioManager = new IOManager(IODeviceHandle.getDevices(ncConfig.getIODevices()),
+                application.getFileDeviceResolver());
 
         workQueue = new WorkQueue(id, Thread.NORM_PRIORITY); // Reserves MAX_PRIORITY of the heartbeat thread.
         jobletMap = new Hashtable<>();
-        preDistributedJobActivityClusterGraphMap = new Hashtable<>();
+        preDistributedJobs = new Hashtable<>();
         timer = new Timer(true);
         serverCtx = new ServerContext(ServerContext.ServerType.NODE_CONTROLLER,
                 new File(new File(NodeControllerService.class.getName()), id));
@@ -205,7 +210,7 @@ public class NodeControllerService implements IControllerService {
         osMXBean = ManagementFactory.getOperatingSystemMXBean();
         getNodeControllerInfosAcceptor = new MutableObject<>();
         memoryManager = new MemoryManager((long) (memoryMXBean.getHeapMemoryUsage().getMax() * MEMORY_FUDGE_FACTOR));
-        ioCounter = new IOCounterFactory().getIOCounter();
+        ioCounter = IOCounterFactory.INSTANCE.getIOCounter();
     }
 
     public IOManager getIoManager() {
@@ -331,8 +336,8 @@ public class NodeControllerService implements IControllerService {
         // Use "public" versions of network addresses and ports
         NetworkAddress datasetAddress = datasetNetworkManager.getPublicNetworkAddress();
         NetworkAddress netAddress = netManager.getPublicNetworkAddress();
-        NetworkAddress meesagingPort =
-                messagingNetManager != null ? messagingNetManager.getPublicNetworkAddress() : null;
+        NetworkAddress meesagingPort = messagingNetManager != null ? messagingNetManager.getPublicNetworkAddress()
+                : null;
         int allCores = osMXBean.getAvailableProcessors();
         nodeRegistration = new NodeRegistration(ipc.getSocketAddress(), id, ncConfig, netAddress, datasetAddress,
                 osMXBean.getName(), osMXBean.getArch(), osMXBean.getVersion(), allCores, runtimeMXBean.getVmName(),
@@ -360,8 +365,9 @@ public class NodeControllerService implements IControllerService {
 
     private void startApplication() throws Exception {
         serviceCtx = new NCServiceContext(this, serverCtx, ioManager, id, memoryManager, lccm, ncConfig.getAppConfig());
-        application.start(serviceCtx, ncConfig.getAppArgsArray());
+        application.init(serviceCtx);
         executor = Executors.newCachedThreadPool(serviceCtx.getThreadFactory());
+        application.start(ncConfig.getAppArgsArray());
     }
 
     public void updateMaxJobId(JobId jobId) {
@@ -412,27 +418,27 @@ public class NodeControllerService implements IControllerService {
     }
 
     public void storeActivityClusterGraph(JobId jobId, ActivityClusterGraph acg) throws HyracksException {
-        if (preDistributedJobActivityClusterGraphMap.get(jobId) != null) {
+        if (preDistributedJobs.get(jobId) != null) {
             throw HyracksException.create(ErrorCode.DUPLICATE_DISTRIBUTED_JOB, jobId);
         }
-        preDistributedJobActivityClusterGraphMap.put(jobId, acg);
+        preDistributedJobs.put(jobId, acg);
     }
 
     public void removeActivityClusterGraph(JobId jobId) throws HyracksException {
-        if (preDistributedJobActivityClusterGraphMap.get(jobId) == null) {
+        if (preDistributedJobs.get(jobId) == null) {
             throw HyracksException.create(ErrorCode.ERROR_FINDING_DISTRIBUTED_JOB, jobId);
         }
-        preDistributedJobActivityClusterGraphMap.remove(jobId);
+        preDistributedJobs.remove(jobId);
     }
 
     public void checkForDuplicateDistributedJob(JobId jobId) throws HyracksException {
-        if (preDistributedJobActivityClusterGraphMap.get(jobId) != null) {
+        if (preDistributedJobs.get(jobId) != null) {
             throw HyracksException.create(ErrorCode.DUPLICATE_DISTRIBUTED_JOB, jobId);
         }
     }
 
     public ActivityClusterGraph getActivityClusterGraph(JobId jobId) throws HyracksException {
-        return preDistributedJobActivityClusterGraphMap.get(jobId);
+        return preDistributedJobs.get(jobId);
     }
 
     public NetworkManager getNetworkManager() {
