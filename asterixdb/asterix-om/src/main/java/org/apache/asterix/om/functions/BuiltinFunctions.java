@@ -1485,7 +1485,6 @@ public class BuiltinFunctions {
         //  Aggregate functions
 
         // AVG
-
         addAgg(AVG);
         addAgg(LOCAL_AVG);
         addAgg(GLOBAL_AVG);
