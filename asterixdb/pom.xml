@@ -666,7 +666,6 @@
     <module>asterix-active</module>
     <module>asterix-client-helper</module>
     <module>asterix-license</module>
-    <module>esri-geometry-api</module>
   </modules>
 
   <dependencyManagement>
