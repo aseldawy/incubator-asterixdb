@@ -139,11 +139,11 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <version>2.10</version>
         <configuration>
-<ignoredUsedUndeclaredDependencies>
-          <ignoredUsedUndeclaredDependency>org.json:json:*</ignoredUsedUndeclaredDependency>
-         <ignoredUsedUndeclaredDependency>stax:stax-api:*</ignoredUsedUndeclaredDependency>
-        <ignoredUsedUndeclaredDependency>javax.xml.bind:jaxb-api:*</ignoredUsedUndeclaredDependency>
-       </ignoredUsedUndeclaredDependencies>
+          <ignoredUsedUndeclaredDependencies>
+            <ignoredUsedUndeclaredDependency>org.json:json:*</ignoredUsedUndeclaredDependency>
+            <ignoredUsedUndeclaredDependency>stax:stax-api:*</ignoredUsedUndeclaredDependency>
+            <ignoredUsedUndeclaredDependency>javax.xml.bind:jaxb-api:*</ignoredUsedUndeclaredDependency>
+          </ignoredUsedUndeclaredDependencies>
           <ignoredUnusedDeclaredDependencies>
             <ignoredUnusedDeclaredDependency>xml-apis:xml-apis:*</ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
