@@ -18,4 +18,4 @@
  */
 use GeoJSON;
 
-SELECT VALUE {"Length": st_length(geo.myGeometry), "Boundary":st_boundary(geo.myGeometry)} FROM Geometries geo WHERE geometry_type(geo.myGeometry)="LineString" OR geometry_type(geo.myGeometry)="MultiLineString";
+SELECT VALUE {"Length": st_length(geo.myGeometry), "Boundary":st_boundary(geo.myGeometry)} FROM Geometries geo WHERE geometry_type(geo.myGeometry)="LineString" OR geometry_type(geo.myGeometry)="MultiLineString" ORDER BY geo.id;
