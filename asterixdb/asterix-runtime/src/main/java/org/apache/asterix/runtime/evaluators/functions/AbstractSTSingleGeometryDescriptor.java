@@ -27,20 +27,17 @@ import org.apache.asterix.om.types.BuiltinType;
 import org.apache.asterix.om.types.EnumDeserializer;
 import org.apache.asterix.runtime.evaluators.base.AbstractScalarFunctionDynamicDescriptor;
 import org.apache.asterix.runtime.exceptions.TypeMismatchException;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.hyracks.algebricks.runtime.base.IScalarEvaluator;
 import org.apache.hyracks.algebricks.runtime.base.IScalarEvaluatorFactory;
 import org.apache.hyracks.api.context.IHyracksTaskContext;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.data.std.api.IPointable;
-import org.apache.hyracks.data.std.primitive.UTF8StringPointable;
 import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 import org.apache.hyracks.util.string.UTF8StringUtil;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public abstract class AbstractSTSingleGeometryDescriptor extends AbstractScalarFunctionDynamicDescriptor {
 
@@ -106,7 +103,7 @@ public abstract class AbstractSTSingleGeometryDescriptor extends AbstractScalarF
                             } else if (finalResult instanceof OGCGeometry) {
                                 out.writeByte(ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
                                 AGeometrySerializerDeserializer.INSTANCE
-                                        .serialize(new AGeomety((OGCGeometry) finalResult), out);
+                                        .serialize(new AGeometry((OGCGeometry) finalResult), out);
                             }
                         } catch (IOException e) {
                             throw new HyracksDataException(e);

@@ -19,19 +19,13 @@
 package org.apache.asterix.runtime.evaluators.functions;
 
 import com.esri.core.geometry.ogc.OGCGeometry;
-import com.esri.core.geometry.ogc.OGCGeometryCollection;
 import org.apache.asterix.dataflow.data.nontagged.serde.AGeometrySerializerDeserializer;
 import org.apache.asterix.dataflow.data.nontagged.serde.AInt64SerializerDeserializer;
-import org.apache.asterix.om.base.AGeomety;
-import org.apache.asterix.om.functions.BuiltinFunctions;
-import org.apache.asterix.om.functions.IFunctionDescriptor;
-import org.apache.asterix.om.functions.IFunctionDescriptorFactory;
-import org.apache.asterix.om.types.ARecordType;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.runtime.evaluators.base.AbstractScalarFunctionDynamicDescriptor;
 import org.apache.asterix.runtime.exceptions.InvalidDataFormatException;
 import org.apache.asterix.runtime.exceptions.TypeMismatchException;
-import org.apache.hyracks.algebricks.core.algebra.functions.FunctionIdentifier;
 import org.apache.hyracks.algebricks.runtime.base.IScalarEvaluator;
 import org.apache.hyracks.algebricks.runtime.base.IScalarEvaluatorFactory;
 import org.apache.hyracks.api.context.IHyracksTaskContext;
@@ -95,7 +89,7 @@ public abstract class AbstractSTGeometryNDescriptor extends AbstractScalarFuncti
                         OGCGeometry geometryN = evaluateOGCGeometry(geometry, n);
                         try {
                             out.writeByte(ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
-                            AGeometrySerializerDeserializer.INSTANCE.serialize(new AGeomety(geometryN), out);
+                            AGeometrySerializerDeserializer.INSTANCE.serialize(new AGeometry(geometryN), out);
                             result.set(resultStorage);
                         } catch (IOException e) {
                             throw new InvalidDataFormatException(getIdentifier(), e,

@@ -21,17 +21,16 @@ package org.apache.asterix.om.base;
 import com.esri.core.geometry.ogc.OGCGeometry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.asterix.common.exceptions.AsterixException;
 import org.apache.asterix.om.types.BuiltinType;
 import org.apache.asterix.om.types.IAType;
 
 import java.io.IOException;
 
-public class AGeomety implements IAObject {
+public class AGeometry implements IAObject {
 
     protected OGCGeometry geometry;
 
-    public AGeomety(OGCGeometry geometry) {
+    public AGeometry(OGCGeometry geometry) {
         this.geometry = geometry;
     }
 
@@ -46,10 +45,10 @@ public class AGeomety implements IAObject {
 
     @Override
     public boolean deepEqual(IAObject obj) {
-        if (!(obj instanceof AGeomety)) {
+        if (!(obj instanceof AGeometry)) {
             return false;
         } else {
-            AGeomety p = (AGeomety) obj;
+            AGeometry p = (AGeometry) obj;
             return p.geometry.equals(geometry);
         }
     }
@@ -71,7 +70,7 @@ public class AGeomety implements IAObject {
         try {
             json = (ObjectNode) om.readTree(geometry.asGeoJson());
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
         return json;
     }

@@ -27,7 +27,6 @@ import org.apache.asterix.dataflow.data.nontagged.serde.AStringSerializerDeseria
 import org.apache.asterix.om.functions.BuiltinFunctions;
 import org.apache.asterix.om.functions.IFunctionDescriptor;
 import org.apache.asterix.om.functions.IFunctionDescriptorFactory;
-import org.apache.asterix.om.types.ARecordType;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.runtime.evaluators.base.AbstractScalarFunctionDynamicDescriptor;
 import org.apache.asterix.runtime.exceptions.InvalidDataFormatException;
@@ -55,12 +54,9 @@ public class STGeomFromTextDescriptor extends AbstractScalarFunctionDynamicDescr
     };
 
     private static final long serialVersionUID = 1L;
-    private ARecordType recType;
 
     @Override
-    public void setImmutableStates(Object... states) {
-        this.recType = (ARecordType) states[0];
-    }
+    public void setImmutableStates(Object... states) { }
 
     @Override
     public FunctionIdentifier getIdentifier() {

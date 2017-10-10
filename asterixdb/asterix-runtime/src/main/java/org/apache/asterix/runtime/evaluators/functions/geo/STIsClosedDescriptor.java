@@ -51,7 +51,7 @@ public class STIsClosedDescriptor extends AbstractSTSingleGeometryDescriptor {
                 || geometry instanceof OGCPolygon || geometry instanceof OGCPoint) {
             return true;
         } else if (geometry instanceof OGCGeometryCollection) {
-            OGCGeometryCollection geometryCollection = ((OGCGeometryCollection) geometry);
+            OGCGeometryCollection geometryCollection = (OGCGeometryCollection) geometry;
             int num = geometryCollection.numGeometries();
             for (int i = 0; i < num; ++i) {
                 if (!isClosed(geometryCollection.geometryN(i))) {

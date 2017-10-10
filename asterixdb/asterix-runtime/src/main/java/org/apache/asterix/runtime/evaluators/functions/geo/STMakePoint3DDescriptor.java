@@ -22,7 +22,7 @@ import com.esri.core.geometry.Point;
 import com.esri.core.geometry.SpatialReference;
 import com.esri.core.geometry.ogc.OGCPoint;
 import org.apache.asterix.dataflow.data.nontagged.serde.AGeometrySerializerDeserializer;
-import org.apache.asterix.om.base.AGeomety;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.asterix.om.functions.BuiltinFunctions;
 import org.apache.asterix.om.functions.IFunctionDescriptor;
 import org.apache.asterix.om.functions.IFunctionDescriptorFactory;
@@ -69,7 +69,7 @@ public class STMakePoint3DDescriptor extends AbstractGetValDescriptor {
                     private final IScalarEvaluator eval1 = args[1].createScalarEvaluator(ctx);
                     private final IScalarEvaluator eval2 = args[2].createScalarEvaluator(ctx);
                     private Point point = new Point(0, 0, 0);
-                    private AGeomety pointGeometry = new AGeomety(new OGCPoint(point, SpatialReference.create(4326)));
+                    private AGeometry pointGeometry = new AGeometry(new OGCPoint(point, SpatialReference.create(4326)));
 
                     @Override
                     public void evaluate(IFrameTupleReference tuple, IPointable result) throws HyracksDataException {

@@ -49,12 +49,9 @@ public class STGeomFromWKBDescriptor extends AbstractScalarFunctionDynamicDescri
     };
 
     private static final long serialVersionUID = 1L;
-    private ARecordType recType;
 
     @Override
-    public void setImmutableStates(Object... states) {
-        this.recType = (ARecordType) states[0];
-    }
+    public void setImmutableStates(Object... states) { }
 
     @Override
     public FunctionIdentifier getIdentifier() {

@@ -30,7 +30,7 @@ import org.apache.asterix.om.base.ADateTime;
 import org.apache.asterix.om.base.ADouble;
 import org.apache.asterix.om.base.ADuration;
 import org.apache.asterix.om.base.AFloat;
-import org.apache.asterix.om.base.AGeomety;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.asterix.om.base.AInt16;
 import org.apache.asterix.om.base.AInt32;
 import org.apache.asterix.om.base.AInt64;
@@ -217,7 +217,7 @@ public class AObjectSerializerDeserializer implements ISerializerDeserializer<IA
                 ATypeSerializerDeserializer.INSTANCE.serialize((IAType) instance, out);
                 break;
             case GEOMETRY:
-                AGeometrySerializerDeserializer.INSTANCE.serialize((AGeomety) instance, out);
+                AGeometrySerializerDeserializer.INSTANCE.serialize((AGeometry) instance, out);
                 break;
             default:
                 throw new HyracksDataException(

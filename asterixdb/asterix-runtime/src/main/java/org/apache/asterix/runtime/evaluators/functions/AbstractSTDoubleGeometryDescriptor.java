@@ -19,11 +19,10 @@
 package org.apache.asterix.runtime.evaluators.functions;
 
 import com.esri.core.geometry.ogc.OGCGeometry;
-import org.apache.asterix.dataflow.data.nontagged.serde.ABooleanSerializerDeserializer;
 import org.apache.asterix.dataflow.data.nontagged.serde.AGeometrySerializerDeserializer;
 import org.apache.asterix.formats.nontagged.SerializerDeserializerProvider;
 import org.apache.asterix.om.base.ABoolean;
-import org.apache.asterix.om.base.AGeomety;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.om.types.BuiltinType;
 import org.apache.asterix.om.types.EnumDeserializer;
@@ -98,7 +97,7 @@ public abstract class AbstractSTDoubleGeometryDescriptor extends AbstractScalarF
                             if (finalResult instanceof OGCGeometry) {
                                 out.writeByte(ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
                                 AGeometrySerializerDeserializer.INSTANCE
-                                        .serialize(new AGeomety((OGCGeometry) finalResult), out);
+                                        .serialize(new AGeometry((OGCGeometry) finalResult), out);
                             } else if (finalResult instanceof Boolean) {
                                 SerializerDeserializerProvider.INSTANCE.getSerializerDeserializer(BuiltinType.ABOOLEAN)
                                         .serialize((boolean) finalResult ? ABoolean.TRUE : ABoolean.FALSE, out);

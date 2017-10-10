@@ -24,7 +24,7 @@ import com.esri.core.geometry.ogc.OGCGeometry;
 import com.esri.core.geometry.ogc.OGCGeometryCollection;
 import org.apache.asterix.dataflow.data.nontagged.serde.AOrderedListSerializerDeserializer;
 import org.apache.asterix.formats.nontagged.SerializerDeserializerProvider;
-import org.apache.asterix.om.base.AGeomety;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.asterix.om.base.IACollection;
 import org.apache.asterix.om.base.IACursor;
 import org.apache.asterix.om.base.IAObject;
@@ -109,13 +109,13 @@ public class STPolygonizeDescriptor extends AbstractScalarFunctionDynamicDescrip
                         List<OGCGeometry> list = new ArrayList<>();
                         while (cursor.next()) {
                             IAObject object = cursor.get();
-                            list.add(((AGeomety) object).getGeometry());
+                            list.add(((AGeometry) object).getGeometry());
                         }
                         OGCGeometryCollection geometryCollection =
                                 new OGCConcreteGeometryCollection(list, SpatialReference.create(4326));
                         try {
                             SerializerDeserializerProvider.INSTANCE.getSerializerDeserializer(BuiltinType.AGEOMETRY)
-                                    .serialize(new AGeomety(geometryCollection), out);
+                                    .serialize(new AGeometry(geometryCollection), out);
                         } catch (IOException e) {
                             throw new InvalidDataFormatException(getIdentifier(), e,
                                     ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);

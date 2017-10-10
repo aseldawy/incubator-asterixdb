@@ -39,7 +39,8 @@ public class STIsCollectionDescriptor extends AbstractSTSingleGeometryDescriptor
     @Override
     protected Object evaluateOGCGeometry(OGCGeometry geometry) throws HyracksDataException {
         String type = geometry.geometryType();
-        return "GeometryCollection".equals(type)||"MultiLineString".equals(type)||"MultiPoint".equals(type)||"MultiPolygon".equals(type);
+        return "GeometryCollection".equals(type) || "MultiLineString".equals(type) || "MultiPoint".equals(type) ||
+            "MultiPolygon".equals(type);
     }
 
     @Override

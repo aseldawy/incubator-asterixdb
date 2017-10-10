@@ -21,7 +21,7 @@ package org.apache.asterix.dataflow.data.nontagged.serde;
 import com.esri.core.geometry.OperatorImportFromWkb;
 import com.esri.core.geometry.SpatialReference;
 import com.esri.core.geometry.ogc.OGCGeometry;
-import org.apache.asterix.om.base.AGeomety;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.hyracks.api.dataflow.value.ISerializerDeserializer;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 
@@ -30,7 +30,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class AGeometrySerializerDeserializer implements ISerializerDeserializer<AGeomety> {
+public class AGeometrySerializerDeserializer implements ISerializerDeserializer<AGeometry> {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ public class AGeometrySerializerDeserializer implements ISerializerDeserializer<
     }
 
     @Override
-    public AGeomety deserialize(DataInput in) throws HyracksDataException {
+    public AGeometry deserialize(DataInput in) throws HyracksDataException {
         try {
             int length = in.readInt();
             byte[] bytes = new byte[length];
@@ -49,14 +49,14 @@ public class AGeometrySerializerDeserializer implements ISerializerDeserializer<
             OGCGeometry geometry = OGCGeometry
                     .createFromOGCStructure(OperatorImportFromWkb.local().executeOGC(0, buffer, null),
                             SpatialReference.create(4326));
-            return new AGeomety(geometry);
+            return new AGeometry(geometry);
         } catch (IOException e) {
             throw new HyracksDataException(e);
         }
     }
 
     @Override
-    public void serialize(AGeomety instance, DataOutput out) throws HyracksDataException {
+    public void serialize(AGeometry instance, DataOutput out) throws HyracksDataException {
         try {
             OGCGeometry geometry = instance.getGeometry();
             byte[] buffer = geometry.asBinary().array();

@@ -752,7 +752,7 @@ public class BuiltinFunctions {
             "st-within", 2);
     public static final FunctionIdentifier ST_IS_EMPTY = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-is-empty", 1);
-    public static final FunctionIdentifier ST_IS_SIMPLE= new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
+    public static final FunctionIdentifier ST_IS_SIMPLE = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-is-simple", 1);
     public static final FunctionIdentifier ST_COORD_DIM = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-coord-dim", 1);
@@ -776,7 +776,7 @@ public class BuiltinFunctions {
             "st-x", 1);
     public static final FunctionIdentifier ST_Y = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-y", 1);
-    public static final FunctionIdentifier ST_X_MAX= new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
+    public static final FunctionIdentifier ST_X_MAX = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-x-max", 1);
     public static final FunctionIdentifier ST_X_MIN = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-x-min", 1);
@@ -812,8 +812,8 @@ public class BuiltinFunctions {
             "st-geom-from-wkb", 1);
     public static final FunctionIdentifier ST_GEOM_FROM_WKB_SRID = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-geom-from-wkb", 2);
-    public static final FunctionIdentifier ST_LINE_FROM_MULTIPOINT = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
-            "st-line-from-multipoint", 1);
+    public static final FunctionIdentifier ST_LINE_FROM_MULTIPOINT =
+            new FunctionIdentifier(FunctionConstants.ASTERIX_NS, "st-line-from-multipoint", 1);
     public static final FunctionIdentifier ST_MAKE_ENVELOPE = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-make-envelope", 5);
     public static final FunctionIdentifier ST_IS_CLOSED = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,

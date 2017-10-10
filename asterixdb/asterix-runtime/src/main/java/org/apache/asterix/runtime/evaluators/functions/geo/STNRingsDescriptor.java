@@ -43,7 +43,7 @@ public class STNRingsDescriptor extends AbstractSTSingleGeometryDescriptor {
         if (geometry instanceof OGCPolygon) {
             return ((OGCPolygon) geometry).numInteriorRing() + 1;
         } else if (geometry instanceof OGCMultiPolygon) {
-            OGCMultiPolygon polygon = ((OGCMultiPolygon) geometry);
+            OGCMultiPolygon polygon = (OGCMultiPolygon) geometry;
             int numGeometries = polygon.numGeometries();
             int count = 0;
             for (int i = 1; i < numGeometries + 1; i++) {

@@ -24,7 +24,7 @@ import com.esri.core.geometry.ogc.OGCGeometry;
 import com.esri.core.geometry.ogc.OGCPoint;
 import org.apache.asterix.dataflow.data.nontagged.serde.AGeometrySerializerDeserializer;
 import org.apache.asterix.formats.nontagged.SerializerDeserializerProvider;
-import org.apache.asterix.om.base.AGeomety;
+import org.apache.asterix.om.base.AGeometry;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.om.types.BuiltinType;
 import org.apache.asterix.om.types.EnumDeserializer;
@@ -48,7 +48,7 @@ import java.io.IOException;
  * COUNT returns the number of items in the given list. Note that COUNT(NULL) is not allowed.
  */
 public class STUnionAggregateFunction implements IAggregateEvaluator {
-    @SuppressWarnings("unchecked") private ISerializerDeserializer<AGeomety> geometrySerde =
+    @SuppressWarnings("unchecked") private ISerializerDeserializer<AGeometry> geometrySerde =
             SerializerDeserializerProvider.INSTANCE.getSerializerDeserializer(BuiltinType.AGEOMETRY);
     private IPointable inputVal = new VoidPointable();
     private IScalarEvaluator eval;
@@ -88,7 +88,7 @@ public class STUnionAggregateFunction implements IAggregateEvaluator {
     public void finish(IPointable resultPointable) throws HyracksDataException {
         resultStorage.reset();
         try {
-            geometrySerde.serialize(new AGeomety(geometry), resultStorage.getDataOutput());
+            geometrySerde.serialize(new AGeometry(geometry), resultStorage.getDataOutput());
         } catch (IOException e) {
             throw new HyracksDataException(e);
         }
