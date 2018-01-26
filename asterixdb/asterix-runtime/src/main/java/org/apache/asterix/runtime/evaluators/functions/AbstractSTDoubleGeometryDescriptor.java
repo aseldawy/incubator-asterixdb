@@ -37,7 +37,11 @@ import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+
 
 public abstract class AbstractSTDoubleGeometryDescriptor extends AbstractScalarFunctionDynamicDescriptor {
 
@@ -85,11 +89,11 @@ public abstract class AbstractSTDoubleGeometryDescriptor extends AbstractScalarF
                                         ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
                             }
 
-                            DataInput dataIn0 =
+                            DataInputStream dataIn0 =
                                     new DataInputStream(new ByteArrayInputStream(bytes0, offset0 + 1, len0 - 1));
                             OGCGeometry geometry0 =
                                     AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn0).getGeometry();
-                            DataInput dataIn1 =
+                            DataInputStream dataIn1 =
                                     new DataInputStream(new ByteArrayInputStream(bytes1, offset1 + 1, len1 - 1));
                             OGCGeometry geometry1 =
                                     AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn1).getGeometry();
@@ -107,7 +111,7 @@ public abstract class AbstractSTDoubleGeometryDescriptor extends AbstractScalarF
                             }
 
                         } catch (IOException e) {
-                            throw new HyracksDataException(e);
+                            throw HyracksDataException.create(e);
                         }
                         result.set(resultStorage);
                     }

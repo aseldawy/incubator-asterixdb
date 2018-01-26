@@ -53,7 +53,8 @@ public class STLineFromMultiPointDescriptor extends AbstractSTSingleGeometryDesc
             }
             return new OGCLineString(polyline, 0, SpatialReference.create(4326));
         } else {
-            throw new HyracksDataException("This function expects a MultiPoint geometry type");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 

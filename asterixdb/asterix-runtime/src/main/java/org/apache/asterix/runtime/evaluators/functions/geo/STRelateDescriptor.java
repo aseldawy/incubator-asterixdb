@@ -42,7 +42,10 @@ import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class STRelateDescriptor extends AbstractScalarFunctionDynamicDescriptor {
 
@@ -113,13 +116,13 @@ public class STRelateDescriptor extends AbstractScalarFunctionDynamicDescriptor 
                         }
 
                         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes, offset + 1, len - 1);
-                        DataInput dataIn = new DataInputStream(inStream);
+                        DataInputStream dataIn = new DataInputStream(inStream);
                         String matrix = AStringSerializerDeserializer.INSTANCE.deserialize(dataIn).getStringValue();
-                        DataInput dataIn0 =
+                        DataInputStream dataIn0 =
                                 new DataInputStream(new ByteArrayInputStream(bytes0, offset0 + 1, len0 - 1));
                         OGCGeometry geometry0 =
                                 AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn0).getGeometry();
-                        DataInput dataIn1 =
+                        DataInputStream dataIn1 =
                                 new DataInputStream(new ByteArrayInputStream(bytes1, offset1 + 1, len1 - 1));
                         OGCGeometry geometry1 =
                                 AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn1).getGeometry();

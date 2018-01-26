@@ -48,8 +48,8 @@ public class STGeometryNDescriptor extends AbstractSTGeometryNDescriptor {
         if (geometry instanceof OGCGeometryCollection) {
             return ((OGCGeometryCollection) geometry).geometryN(n);
         } else {
-            throw new UnsupportedOperationException(
-                    "The " + geometry.geometryType() + " type is not supported by this function");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 }

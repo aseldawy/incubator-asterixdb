@@ -18,7 +18,14 @@
  */
 package org.apache.asterix.runtime.evaluators.functions.geo;
 
-import com.esri.core.geometry.ogc.*;
+import com.esri.core.geometry.ogc.OGCCurve;
+import com.esri.core.geometry.ogc.OGCGeometry;
+import com.esri.core.geometry.ogc.OGCGeometryCollection;
+import com.esri.core.geometry.ogc.OGCMultiCurve;
+import com.esri.core.geometry.ogc.OGCMultiPoint;
+import com.esri.core.geometry.ogc.OGCMultiPolygon;
+import com.esri.core.geometry.ogc.OGCPoint;
+import com.esri.core.geometry.ogc.OGCPolygon;
 import org.apache.asterix.om.functions.BuiltinFunctions;
 import org.apache.asterix.om.functions.IFunctionDescriptor;
 import org.apache.asterix.om.functions.IFunctionDescriptorFactory;
@@ -60,7 +67,8 @@ public class STIsClosedDescriptor extends AbstractSTSingleGeometryDescriptor {
             }
             return true;
         } else {
-            throw new UnsupportedOperationException("The " + geometry.geometryType() + " type is not supported");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 

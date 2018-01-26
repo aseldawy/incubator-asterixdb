@@ -48,7 +48,10 @@ import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +107,7 @@ public class STPolygonizeDescriptor extends AbstractScalarFunctionDynamicDescrip
                         }
 
                         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes, offset + 1, len - 1);
-                        DataInput dataIn = new DataInputStream(inStream);
+                        DataInputStream dataIn = new DataInputStream(inStream);
                         IACursor cursor = ((IACollection) serde.deserialize(dataIn)).getCursor();
                         List<OGCGeometry> list = new ArrayList<>();
                         while (cursor.next()) {

@@ -63,7 +63,8 @@ public class STNPointsDescriptor extends AbstractSTSingleGeometryDescriptor {
         } else if (geometry.isEmpty()) {
             return 0;
         } else {
-            throw new HyracksDataException("The number of vertices cannot be calculated");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 

@@ -53,7 +53,8 @@ public class STNRingsDescriptor extends AbstractSTSingleGeometryDescriptor {
             }
             return count;
         } else {
-            throw new HyracksDataException("This function expects a Polygon or a MultiPolygon geometry type");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 

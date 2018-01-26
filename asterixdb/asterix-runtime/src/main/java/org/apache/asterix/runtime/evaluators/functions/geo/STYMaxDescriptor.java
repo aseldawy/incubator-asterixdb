@@ -46,8 +46,8 @@ public class STYMaxDescriptor extends AbstractSTSingleGeometryDescriptor {
             esriGeom.queryEnvelope(env);
             return env.getYMax();
         } else {
-            throw new HyracksDataException(
-                    "This method is not spported for the geometry type: " + geometry.geometryType());
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
 
     }

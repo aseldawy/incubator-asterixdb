@@ -37,7 +37,10 @@ import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 import org.apache.hyracks.dataflow.common.data.marshalling.ByteArraySerializerDeserializer;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class STGeomFromWKBDescriptor extends AbstractScalarFunctionDynamicDescriptor {
 
@@ -87,7 +90,7 @@ public class STGeomFromWKBDescriptor extends AbstractScalarFunctionDynamicDescri
                         try {
                             out.writeByte(ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
                             ByteArrayInputStream inStream = new ByteArrayInputStream(data, offset + 1, len - 1);
-                            DataInput dataIn = new DataInputStream(inStream);
+                            DataInputStream dataIn = new DataInputStream(inStream);
                             data = ByteArraySerializerDeserializer.read(dataIn);
                             out.writeInt(data.length);
                             out.write(data);

@@ -42,7 +42,8 @@ public class STMDescriptor extends AbstractSTSingleGeometryDescriptor {
         if (geometry instanceof OGCPoint) {
             return ((OGCPoint) geometry).M();
         } else {
-            throw new HyracksDataException("This function expects a point geometry type");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 

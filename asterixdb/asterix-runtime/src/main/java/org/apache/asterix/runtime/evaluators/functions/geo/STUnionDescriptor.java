@@ -44,6 +44,6 @@ public class STUnionDescriptor extends AbstractSTDoubleGeometryDescriptor {
 
     @Override
     public FunctionIdentifier getIdentifier() {
-        return BuiltinFunctions.ST_UNITON;
+        return BuiltinFunctions.ST_UNION;
     }
 }

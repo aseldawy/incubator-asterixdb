@@ -42,8 +42,8 @@ public class STExteriorRingDescriptor extends AbstractSTSingleGeometryDescriptor
         if (geometry instanceof OGCPolygon) {
             return ((OGCPolygon) geometry).exteriorRing();
         } else {
-            throw new UnsupportedOperationException(
-                    "Only Polygon is supported by this function");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 

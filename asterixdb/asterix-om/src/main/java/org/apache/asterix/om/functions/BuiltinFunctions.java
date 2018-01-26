@@ -732,7 +732,7 @@ public class BuiltinFunctions {
             "st-make-point", 4);
     public static final FunctionIdentifier ST_INTERSECTS = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-intersects", 2);
-    public static final FunctionIdentifier ST_UNITON = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
+    public static final FunctionIdentifier ST_UNION = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-union", 2);
     public static final FunctionIdentifier ST_IS_COLLECTION = new FunctionIdentifier(FunctionConstants.ASTERIX_NS,
             "st-is-collection", 1);
@@ -1290,7 +1290,7 @@ public class BuiltinFunctions {
         addFunction(ST_MAKE_POINT3D, AGeometryTypeComputer.INSTANCE, true);
         addFunction(ST_MAKE_POINT3D_M, AGeometryTypeComputer.INSTANCE, true);
         addFunction(ST_INTERSECTS, ABooleanTypeComputer.INSTANCE, true);
-        addFunction(ST_UNITON, AGeometryTypeComputer.INSTANCE, true);
+        addFunction(ST_UNION, AGeometryTypeComputer.INSTANCE, true);
         addFunction(ST_IS_COLLECTION, ABooleanTypeComputer.INSTANCE, true);
         addFunction(ST_CONTAINS, ABooleanTypeComputer.INSTANCE, true);
         addFunction(ST_CROSSES, ABooleanTypeComputer.INSTANCE, true);

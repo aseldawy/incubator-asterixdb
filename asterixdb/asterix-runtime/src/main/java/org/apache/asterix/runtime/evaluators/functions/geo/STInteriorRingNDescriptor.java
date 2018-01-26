@@ -48,8 +48,8 @@ public class STInteriorRingNDescriptor extends AbstractSTGeometryNDescriptor {
         if (geometry instanceof OGCPolygon) {
             return ((OGCPolygon) geometry).interiorRingN(n);
         } else {
-            throw new UnsupportedOperationException(
-                    "The " + geometry.geometryType() + " type is not supported by this function");
+            throw new UnsupportedOperationException("The operation "+getIdentifier()+
+                    " is not supported for the type " + geometry.geometryType());
         }
     }
 }

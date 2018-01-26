@@ -35,7 +35,11 @@ import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+
 
 public abstract class AbstractSTGeometryNDescriptor extends AbstractScalarFunctionDynamicDescriptor {
 
@@ -81,7 +85,7 @@ public abstract class AbstractSTGeometryNDescriptor extends AbstractScalarFuncti
                         }
 
                         ByteArrayInputStream inStream = new ByteArrayInputStream(data, offset + 1, len - 1);
-                        DataInput dataIn = new DataInputStream(inStream);
+                        DataInputStream dataIn = new DataInputStream(inStream);
                         OGCGeometry geometry =
                                 AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn).getGeometry();
                         int n = (int) AInt64SerializerDeserializer.getLong(data0, offset0 + 1);

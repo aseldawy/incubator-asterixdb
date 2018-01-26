@@ -37,7 +37,11 @@ import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 import org.apache.hyracks.util.string.UTF8StringUtil;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+
 
 public abstract class AbstractSTSingleGeometryDescriptor extends AbstractScalarFunctionDynamicDescriptor {
 
@@ -76,7 +80,7 @@ public abstract class AbstractSTSingleGeometryDescriptor extends AbstractScalarF
                                         ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
                             }
 
-                            DataInput dataIn0 =
+                            DataInputStream dataIn0 =
                                     new DataInputStream(new ByteArrayInputStream(bytes0, offset0 + 1, len0 - 1));
                             OGCGeometry geometry0 =
                                     AGeometrySerializerDeserializer.INSTANCE.deserialize(dataIn0).getGeometry();
@@ -106,7 +110,7 @@ public abstract class AbstractSTSingleGeometryDescriptor extends AbstractScalarF
                                         .serialize(new AGeometry((OGCGeometry) finalResult), out);
                             }
                         } catch (IOException e) {
-                            throw new HyracksDataException(e);
+                            throw HyracksDataException.create(e);
                         }
                         result.set(resultStorage);
                     }

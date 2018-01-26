@@ -25,9 +25,11 @@ import com.esri.core.geometry.ogc.OGCPoint;
 import org.apache.asterix.dataflow.data.nontagged.serde.AGeometrySerializerDeserializer;
 import org.apache.asterix.formats.nontagged.SerializerDeserializerProvider;
 import org.apache.asterix.om.base.AGeometry;
+import org.apache.asterix.om.functions.BuiltinFunctions;
 import org.apache.asterix.om.types.ATypeTag;
 import org.apache.asterix.om.types.BuiltinType;
 import org.apache.asterix.om.types.EnumDeserializer;
+import org.apache.asterix.runtime.exceptions.UnsupportedItemTypeException;
 import org.apache.hyracks.algebricks.runtime.base.IAggregateEvaluator;
 import org.apache.hyracks.algebricks.runtime.base.IScalarEvaluator;
 import org.apache.hyracks.algebricks.runtime.base.IScalarEvaluatorFactory;
@@ -100,7 +102,7 @@ public class STUnionAggregateFunction implements IAggregateEvaluator {
         finish(resultPointable);
     }
 
-    protected void processNull() {
-        throw new NullPointerException("st_union: Geometry type encountered was null");
+    protected void processNull() throws UnsupportedItemTypeException {
+        throw new UnsupportedItemTypeException(BuiltinFunctions.ST_UNION, ATypeTag.SERIALIZED_SYSTEM_NULL_TYPE_TAG);
     }
 }

@@ -42,7 +42,10 @@ import org.apache.hyracks.data.std.primitive.VoidPointable;
 import org.apache.hyracks.data.std.util.ArrayBackedValueStorage;
 import org.apache.hyracks.dataflow.common.data.accessors.IFrameTupleReference;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class STGeomFromTextSRIDDescriptor extends AbstractScalarFunctionDynamicDescriptor {
@@ -100,7 +103,7 @@ public class STGeomFromTextSRIDDescriptor extends AbstractScalarFunctionDynamicD
                         }
 
                         ByteArrayInputStream inStream = new ByteArrayInputStream(data, offset + 1, len - 1);
-                        DataInput dataIn = new DataInputStream(inStream);
+                        DataInputStream dataIn = new DataInputStream(inStream);
                         try {
                             String geometry =
                                     AStringSerializerDeserializer.INSTANCE.deserialize(dataIn).getStringValue();
