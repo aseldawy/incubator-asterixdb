@@ -99,11 +99,8 @@ public class STGeomFromTextDescriptor extends AbstractScalarFunctionDynamicDescr
                             String geometry =
                                     AStringSerializerDeserializer.INSTANCE.deserialize(dataIn).getStringValue();
                             OGCStructure structure;
-                            try {
-                                structure = wktImporter.executeOGC(WktImportFlags.wktImportDefaults, geometry, null);
-                            } catch (IllegalArgumentException e) {
-                                structure = wktImporter.executeOGC(WktImportFlags.wktImportNonTrusted, geometry, null);
-                            }
+
+                            structure = wktImporter.executeOGC(WktImportFlags.wktImportNonTrusted, geometry, null);
                             OGCGeometry ogcGeometry =
                                     OGCGeometry.createFromOGCStructure(structure, SpatialReference.create(4326));
                             ByteBuffer buffer = ogcGeometry.asBinary();
@@ -112,6 +109,7 @@ public class STGeomFromTextDescriptor extends AbstractScalarFunctionDynamicDescr
                             out.writeInt(wKBGeometryBuffer.length);
                             out.write(wKBGeometryBuffer);
                             result.set(resultStorage);
+
                         } catch (IOException e) {
                             throw new InvalidDataFormatException(getIdentifier(), e,
                                     ATypeTag.SERIALIZED_GEOMETRY_TYPE_TAG);
