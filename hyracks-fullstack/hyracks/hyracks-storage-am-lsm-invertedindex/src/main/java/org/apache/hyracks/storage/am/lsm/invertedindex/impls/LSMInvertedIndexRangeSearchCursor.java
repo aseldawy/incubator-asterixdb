@@ -51,7 +51,12 @@ public class LSMInvertedIndexRangeSearchCursor extends LSMIndexSearchCursor {
     }
 
     @Override
-    public void doOpen(ICursorInitialState initState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void next() throws HyracksDataException {
+        super.next();
+    }
+
+    @Override
+    public void open(ICursorInitialState initState, ISearchPredicate searchPred) throws HyracksDataException {
         LSMInvertedIndexRangeSearchCursorInitialState lsmInitState =
                 (LSMInvertedIndexRangeSearchCursorInitialState) initState;
         cmp = lsmInitState.getOriginalKeyComparator();
@@ -102,13 +107,13 @@ public class LSMInvertedIndexRangeSearchCursor extends LSMIndexSearchCursor {
                 continue;
             }
             deletedKeysBTreeCursors[i].close();
-            deletedKeysBTreeAccessors.get(i).search(deletedKeysBTreeCursors[i], keySearchPred);
             try {
+                deletedKeysBTreeAccessors.get(i).search(deletedKeysBTreeCursors[i], keySearchPred);
                 if (deletedKeysBTreeCursors[i].hasNext()) {
                     return true;
                 }
             } finally {
-                deletedKeysBTreeCursors[i].close();
+                deletedKeysBTreeCursors[i].destroy();
             }
         }
         return false;

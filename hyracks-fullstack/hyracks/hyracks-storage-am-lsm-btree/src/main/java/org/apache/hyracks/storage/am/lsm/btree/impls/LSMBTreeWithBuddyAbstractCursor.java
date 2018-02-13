@@ -36,12 +36,12 @@ import org.apache.hyracks.storage.am.lsm.common.api.ILSMComponent;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMComponent.LSMComponentType;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMHarness;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMIndexOperationContext;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
+import org.apache.hyracks.storage.common.IIndexCursor;
 import org.apache.hyracks.storage.common.ISearchPredicate;
 import org.apache.hyracks.storage.common.MultiComparator;
 
-public abstract class LSMBTreeWithBuddyAbstractCursor extends EnforcedIndexCursor implements ILSMIndexCursor {
+public abstract class LSMBTreeWithBuddyAbstractCursor implements ILSMIndexCursor {
 
     protected boolean open;
     protected BTreeRangeSearchCursor[] btreeCursors;
@@ -75,7 +75,7 @@ public abstract class LSMBTreeWithBuddyAbstractCursor extends EnforcedIndexCurso
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
 
         LSMBTreeWithBuddyCursorInitialState lsmInitialState = (LSMBTreeWithBuddyCursorInitialState) initialState;
         btreeCmp = lsmInitialState.getBTreeCmp();
@@ -142,7 +142,7 @@ public abstract class LSMBTreeWithBuddyAbstractCursor extends EnforcedIndexCurso
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
+    public void destroy() throws HyracksDataException {
         if (!open) {
             return;
         }
@@ -163,7 +163,7 @@ public abstract class LSMBTreeWithBuddyAbstractCursor extends EnforcedIndexCurso
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return frameTuple;
     }
 }

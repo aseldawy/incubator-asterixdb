@@ -46,7 +46,6 @@ public class InMemoryInvertedIndexAccessor implements IInvertedIndexAccessor {
     protected IIndexOperationContext opCtx;
     protected InMemoryInvertedIndex index;
     protected BTreeAccessor btreeAccessor;
-    private boolean destroyed = false;
 
     public InMemoryInvertedIndexAccessor(InMemoryInvertedIndex index, IIndexOperationContext opCtx)
             throws HyracksDataException {
@@ -131,20 +130,4 @@ public class InMemoryInvertedIndexAccessor implements IInvertedIndexAccessor {
         btreeAccessor.getOpContext().resetNonIndexFieldsTuple(newTuple);
     }
 
-    @Override
-    public void destroy() throws HyracksDataException {
-        if (destroyed) {
-            return;
-        }
-        destroyed = true;
-        doDestroy();
-    }
-
-    private void doDestroy() throws HyracksDataException {
-        try {
-            btreeAccessor.destroy();
-        } finally {
-            opCtx.destroy();
-        }
-    }
 }

@@ -53,6 +53,7 @@ public class InputChannelFrameReader implements IFrameReader, IInputChannelMonit
             try {
                 wait();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw HyracksDataException.create(e);
             }
         }

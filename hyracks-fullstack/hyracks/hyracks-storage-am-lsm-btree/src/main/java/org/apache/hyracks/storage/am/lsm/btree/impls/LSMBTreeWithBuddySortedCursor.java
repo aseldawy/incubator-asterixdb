@@ -47,7 +47,7 @@ public class LSMBTreeWithBuddySortedCursor extends LSMBTreeWithBuddyAbstractCurs
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
+    public void close() throws HyracksDataException {
         depletedBtreeCursors = new boolean[numberOfTrees];
         foundNext = false;
         try {
@@ -90,7 +90,7 @@ public class LSMBTreeWithBuddySortedCursor extends LSMBTreeWithBuddyAbstractCurs
     }
 
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         while (!foundNext) {
             frameTuple = null;
 
@@ -137,7 +137,7 @@ public class LSMBTreeWithBuddySortedCursor extends LSMBTreeWithBuddyAbstractCurs
                         break;
                     }
                 } finally {
-                    btreeCursors[i].close();
+                    btreeCursors[i].destroy();
                 }
             }
             if (!killed) {
@@ -149,13 +149,14 @@ public class LSMBTreeWithBuddySortedCursor extends LSMBTreeWithBuddyAbstractCurs
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         foundNext = false;
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
-        super.doOpen(initialState, searchPred);
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+        super.open(initialState, searchPred);
+
         depletedBtreeCursors = new boolean[numberOfTrees];
         foundNext = false;
         for (int i = 0; i < numberOfTrees; i++) {
@@ -168,4 +169,5 @@ public class LSMBTreeWithBuddySortedCursor extends LSMBTreeWithBuddyAbstractCurs
             }
         }
     }
+
 }

@@ -38,6 +38,7 @@ import org.apache.asterix.runtime.aggregates.scalar.ScalarSqlMaxAggregateDescrip
 import org.apache.asterix.runtime.aggregates.scalar.ScalarSqlMinAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.scalar.ScalarSqlSumAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.scalar.ScalarSumAggregateDescriptor;
+import org.apache.asterix.runtime.aggregates.scalar.ScalarSTUnionAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.serializable.std.SerializableAvgAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.serializable.std.SerializableCountAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.serializable.std.SerializableGlobalAvgAggregateDescriptor;
@@ -74,6 +75,7 @@ import org.apache.asterix.runtime.aggregates.std.SqlMaxAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.std.SqlMinAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.std.SqlSumAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.std.SumAggregateDescriptor;
+import org.apache.asterix.runtime.aggregates.std.STUnionAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.stream.EmptyStreamAggregateDescriptor;
 import org.apache.asterix.runtime.aggregates.stream.NonEmptyStreamAggregateDescriptor;
 import org.apache.asterix.runtime.evaluators.accessors.CircleCenterAccessor;
@@ -269,6 +271,7 @@ import org.apache.asterix.runtime.evaluators.functions.records.FieldAccessByName
 import org.apache.asterix.runtime.evaluators.functions.records.FieldAccessNestedDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.GetRecordFieldValueDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.GetRecordFieldsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.records.ParseGeoJSONDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.RecordAddFieldsDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.RecordMergeDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.records.RecordPairsDescriptor;
@@ -326,6 +329,65 @@ import org.apache.asterix.runtime.evaluators.functions.temporal.UnixTimeFromDate
 import org.apache.asterix.runtime.evaluators.functions.temporal.UnixTimeFromTimeInMsDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.temporal.YearMonthDurationGreaterThanComparatorDescriptor;
 import org.apache.asterix.runtime.evaluators.functions.temporal.YearMonthDurationLessThanComparatorDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STAreaDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STMakePointDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STMakePoint3DDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STMakePoint3DWithMDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIntersectsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STUnionDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIsCollectionDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STContainsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STCrossesDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STDisjointDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STEqualsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STOverlapsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STTouchesDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STWithinDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIsEmptyDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIsSimpleDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STCoordDimDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STDimensionDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STGeomentryTypeDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STMDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STNRingsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STNPointsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STNumGeometriesDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STNumInteriorRingsDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STSRIDDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STXDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STYDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STXMaxDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STXMinDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STYMaxDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STYMinDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STZDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STZMaxDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STZMinDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STAsBinaryDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STAsTextDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STAsGeoJSONDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STDistanceDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STLengthDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STGeomFromTextDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STGeomFromTextSRIDDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STGeomFromWKBDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STLineFromMultiPointDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STMakeEnvelopeDescriptorSRID;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIsClosedDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIsRingDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STRelateDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STBoundaryDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STEndPointDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STEnvelopeDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STExteriorRingDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STGeometryNDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STInteriorRingNDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STPointNDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STStartPointDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STDifferenceDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STIntersectionDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STSymDifferenceDescriptor;
+import org.apache.asterix.runtime.evaluators.functions.geo.STPolygonizeDescriptor;
 import org.apache.asterix.runtime.runningaggregates.std.TidRunningAggregateDescriptor;
 import org.apache.asterix.runtime.unnestingfunctions.std.RangeDescriptor;
 import org.apache.asterix.runtime.unnestingfunctions.std.ScanCollectionDescriptor;
@@ -466,6 +528,10 @@ public final class FunctionCollection {
         // the number of arguments of the function depend on the first few arguments.
         fc.add(SimilarityJaccardPrefixDescriptor.FACTORY);
         fc.add(SimilarityJaccardPrefixCheckDescriptor.FACTORY);
+
+        //Geo functions
+        fc.add(ScalarSTUnionAggregateDescriptor.FACTORY);
+        fc.add(STUnionAggregateDescriptor.FACTORY);
 
         // functions that need generated class for null-handling.
 
@@ -723,6 +789,68 @@ public final class FunctionCollection {
 
         // Record function
         fc.addGenerated(RecordPairsDescriptor.FACTORY);
+
+        //GeoJSON
+        fc.add(ParseGeoJSONDescriptor.FACTORY);
+        fc.add(STAreaDescriptor.FACTORY);
+        fc.add(STMakePointDescriptor.FACTORY);
+        fc.add(STMakePoint3DDescriptor.FACTORY);
+        fc.add(STMakePoint3DWithMDescriptor.FACTORY);
+        fc.add(STIntersectsDescriptor.FACTORY);
+        fc.add(STUnionDescriptor.FACTORY);
+        fc.add(STIsCollectionDescriptor.FACTORY);
+        fc.add(STContainsDescriptor.FACTORY);
+        fc.add(STCrossesDescriptor.FACTORY);
+        fc.add(STDisjointDescriptor.FACTORY);
+        fc.add(STEqualsDescriptor.FACTORY);
+        fc.add(STOverlapsDescriptor.FACTORY);
+        fc.add(STTouchesDescriptor.FACTORY);
+        fc.add(STWithinDescriptor.FACTORY);
+        fc.add(STIsEmptyDescriptor.FACTORY);
+        fc.add(STIsSimpleDescriptor.FACTORY);
+        fc.add(STCoordDimDescriptor.FACTORY);
+        fc.add(STDimensionDescriptor.FACTORY);
+        fc.add(STGeomentryTypeDescriptor.FACTORY);
+        fc.add(STMDescriptor.FACTORY);
+        fc.add(STNRingsDescriptor.FACTORY);
+        fc.add(STNPointsDescriptor.FACTORY);
+        fc.add(STNumGeometriesDescriptor.FACTORY);
+        fc.add(STNumInteriorRingsDescriptor.FACTORY);
+        fc.add(STSRIDDescriptor.FACTORY);
+        fc.add(STXDescriptor.FACTORY);
+        fc.add(STYDescriptor.FACTORY);
+        fc.add(STXMaxDescriptor.FACTORY);
+        fc.add(STXMinDescriptor.FACTORY);
+        fc.add(STYMaxDescriptor.FACTORY);
+        fc.add(STYMinDescriptor.FACTORY);
+        fc.add(STZDescriptor.FACTORY);
+        fc.add(STZMaxDescriptor.FACTORY);
+        fc.add(STZMinDescriptor.FACTORY);
+        fc.add(STAsBinaryDescriptor.FACTORY);
+        fc.add(STAsTextDescriptor.FACTORY);
+        fc.add(STAsGeoJSONDescriptor.FACTORY);
+        fc.add(STDistanceDescriptor.FACTORY);
+        fc.add(STLengthDescriptor.FACTORY);
+        fc.add(STGeomFromTextDescriptor.FACTORY);
+        fc.add(STGeomFromTextSRIDDescriptor.FACTORY);
+        fc.add(STGeomFromWKBDescriptor.FACTORY);
+        fc.add(STLineFromMultiPointDescriptor.FACTORY);
+        fc.add(STMakeEnvelopeDescriptorSRID.FACTORY);
+        fc.add(STIsClosedDescriptor.FACTORY);
+        fc.add(STIsRingDescriptor.FACTORY);
+        fc.add(STRelateDescriptor.FACTORY);
+        fc.add(STBoundaryDescriptor.FACTORY);
+        fc.add(STEndPointDescriptor.FACTORY);
+        fc.add(STEnvelopeDescriptor.FACTORY);
+        fc.add(STExteriorRingDescriptor.FACTORY);
+        fc.add(STGeometryNDescriptor.FACTORY);
+        fc.add(STInteriorRingNDescriptor.FACTORY);
+        fc.add(STPointNDescriptor.FACTORY);
+        fc.add(STStartPointDescriptor.FACTORY);
+        fc.add(STDifferenceDescriptor.FACTORY);
+        fc.add(STIntersectionDescriptor.FACTORY);
+        fc.add(STSymDifferenceDescriptor.FACTORY);
+        fc.add(STPolygonizeDescriptor.FACTORY);
 
         return fc;
     }

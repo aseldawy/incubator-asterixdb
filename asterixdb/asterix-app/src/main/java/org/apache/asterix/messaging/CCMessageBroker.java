@@ -121,7 +121,7 @@ public class CCMessageBroker implements ICCMessageBroker {
             MutablePair<ResponseState, Object> right = pair.getRight();
             switch (right.getKey()) {
                 case FAILURE:
-                    throw HyracksDataException.create((Throwable) right.getValue());
+                    throw HyracksDataException.create((Exception) right.getValue());
                 case SUCCESS:
                     return right.getRight();
                 default:

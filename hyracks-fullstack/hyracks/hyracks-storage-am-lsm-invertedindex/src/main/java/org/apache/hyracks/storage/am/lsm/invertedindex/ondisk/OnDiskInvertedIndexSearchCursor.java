@@ -27,11 +27,11 @@ import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.dataflow.common.data.accessors.ITupleReference;
 import org.apache.hyracks.storage.am.common.tuples.PermutingTupleReference;
 import org.apache.hyracks.storage.am.lsm.invertedindex.api.IInvertedIndexSearcher;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
+import org.apache.hyracks.storage.common.IIndexCursor;
 import org.apache.hyracks.storage.common.ISearchPredicate;
 
-public class OnDiskInvertedIndexSearchCursor extends EnforcedIndexCursor {
+public class OnDiskInvertedIndexSearchCursor implements IIndexCursor {
 
     private List<ByteBuffer> resultBuffers;
     private int numResultBuffers;
@@ -55,7 +55,7 @@ public class OnDiskInvertedIndexSearchCursor extends EnforcedIndexCursor {
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
         currentBufferIndex = 0;
         tupleIndex = 0;
         resultBuffers = invIndexSearcher.getResultBuffers();
@@ -66,7 +66,7 @@ public class OnDiskInvertedIndexSearchCursor extends EnforcedIndexCursor {
     }
 
     @Override
-    public boolean doHasNext() {
+    public boolean hasNext() {
         if (currentBufferIndex < numResultBuffers && tupleIndex < fta.getTupleCount()) {
             return true;
         } else {
@@ -75,7 +75,7 @@ public class OnDiskInvertedIndexSearchCursor extends EnforcedIndexCursor {
     }
 
     @Override
-    public void doNext() {
+    public void next() {
         frameTuple.reset(fta.getBuffer().array(), fta.getTupleStartOffset(tupleIndex));
         resultTuple.reset(frameTuple);
         tupleIndex++;
@@ -89,12 +89,12 @@ public class OnDiskInvertedIndexSearchCursor extends EnforcedIndexCursor {
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return resultTuple;
     }
 
     @Override
-    public void doClose() {
+    public void close() {
         currentBufferIndex = 0;
         tupleIndex = 0;
         invIndexSearcher.reset();
@@ -103,7 +103,7 @@ public class OnDiskInvertedIndexSearchCursor extends EnforcedIndexCursor {
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
+    public void destroy() throws HyracksDataException {
         currentBufferIndex = 0;
         tupleIndex = 0;
         resultBuffers = null;

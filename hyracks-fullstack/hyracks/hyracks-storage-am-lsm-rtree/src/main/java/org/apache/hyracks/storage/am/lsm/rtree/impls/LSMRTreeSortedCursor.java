@@ -51,21 +51,17 @@ public class LSMRTreeSortedCursor extends LSMRTreeAbstractCursor {
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
+    public void close() throws HyracksDataException {
         depletedRtreeCursors = new boolean[numberOfTrees];
         foundNext = false;
         try {
             for (int i = 0; i < numberOfTrees; i++) {
                 rtreeCursors[i].close();
                 rtreeAccessors[i].search(rtreeCursors[i], rtreeSearchPredicate);
-                try {
-                    if (rtreeCursors[i].hasNext()) {
-                        rtreeCursors[i].next();
-                    } else {
-                        depletedRtreeCursors[i] = true;
-                    }
-                } finally {
-                    rtreeCursors[i].close();
+                if (rtreeCursors[i].hasNext()) {
+                    rtreeCursors[i].next();
+                } else {
+                    depletedRtreeCursors[i] = true;
                 }
             }
         } finally {
@@ -92,7 +88,7 @@ public class LSMRTreeSortedCursor extends LSMRTreeAbstractCursor {
     }
 
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         while (!foundNext) {
             frameTuple = null;
 
@@ -142,7 +138,7 @@ public class LSMRTreeSortedCursor extends LSMRTreeAbstractCursor {
                         break;
                     }
                 } finally {
-                    btreeCursors[i].close();
+                    btreeCursors[i].destroy();
                 }
             }
             if (!killed) {
@@ -154,13 +150,14 @@ public class LSMRTreeSortedCursor extends LSMRTreeAbstractCursor {
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         foundNext = false;
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
-        super.doOpen(initialState, searchPred);
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+        super.open(initialState, searchPred);
+
         depletedRtreeCursors = new boolean[numberOfTrees];
         foundNext = false;
         for (int i = 0; i < numberOfTrees; i++) {

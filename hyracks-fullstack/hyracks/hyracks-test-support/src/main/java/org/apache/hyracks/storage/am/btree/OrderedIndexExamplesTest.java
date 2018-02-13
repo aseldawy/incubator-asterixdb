@@ -760,20 +760,16 @@ public abstract class OrderedIndexExamplesTest {
             LOGGER.info("Ordered Scan:");
         }
         IIndexCursor scanCursor = indexAccessor.createSearchCursor(false);
+        RangePredicate nullPred = new RangePredicate(null, null, true, true, null, null);
+        indexAccessor.search(scanCursor, nullPred);
         try {
-            RangePredicate nullPred = new RangePredicate(null, null, true, true, null, null);
-            indexAccessor.search(scanCursor, nullPred);
-            try {
-                while (scanCursor.hasNext()) {
-                    scanCursor.next();
-                    ITupleReference frameTuple = scanCursor.getTuple();
-                    String rec = TupleUtils.printTuple(frameTuple, fieldSerdes);
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info(rec);
-                    }
+            while (scanCursor.hasNext()) {
+                scanCursor.next();
+                ITupleReference frameTuple = scanCursor.getTuple();
+                String rec = TupleUtils.printTuple(frameTuple, fieldSerdes);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info(rec);
                 }
-            } finally {
-                scanCursor.close();
             }
         } finally {
             scanCursor.destroy();
@@ -788,17 +784,15 @@ public abstract class OrderedIndexExamplesTest {
             ITreeIndexAccessor treeIndexAccessor = (ITreeIndexAccessor) indexAccessor;
             TreeIndexDiskOrderScanCursor diskOrderCursor =
                     (TreeIndexDiskOrderScanCursor) treeIndexAccessor.createDiskOrderScanCursor();
+            treeIndexAccessor.diskOrderScan(diskOrderCursor);
             try {
-                treeIndexAccessor.diskOrderScan(diskOrderCursor);
-                try {
-                    while (diskOrderCursor.hasNext()) {
-                        diskOrderCursor.next();
-                        ITupleReference frameTuple = diskOrderCursor.getTuple();
-                        String rec = TupleUtils.printTuple(frameTuple, fieldSerdes);
+                while (diskOrderCursor.hasNext()) {
+                    diskOrderCursor.next();
+                    ITupleReference frameTuple = diskOrderCursor.getTuple();
+                    String rec = TupleUtils.printTuple(frameTuple, fieldSerdes);
+                    if (LOGGER.isInfoEnabled()) {
                         LOGGER.info(rec);
                     }
-                } finally {
-                    diskOrderCursor.close();
                 }
             } finally {
                 diskOrderCursor.destroy();
@@ -827,28 +821,24 @@ public abstract class OrderedIndexExamplesTest {
             LOGGER.info("Range-Search in: [ " + lowKeyString + ", " + highKeyString + "]");
         }
         IIndexCursor rangeCursor = indexAccessor.createSearchCursor(false);
+        MultiComparator lowKeySearchCmp = BTreeUtils.getSearchMultiComparator(cmpFactories, lowKey);
+        MultiComparator highKeySearchCmp = BTreeUtils.getSearchMultiComparator(cmpFactories, highKey);
+        RangePredicate rangePred;
+        if (minFilterTuple != null && maxFilterTuple != null) {
+            rangePred = new RangePredicate(lowKey, highKey, true, true, lowKeySearchCmp, highKeySearchCmp,
+                    minFilterTuple, maxFilterTuple);
+        } else {
+            rangePred = new RangePredicate(lowKey, highKey, true, true, lowKeySearchCmp, highKeySearchCmp);
+        }
+        indexAccessor.search(rangeCursor, rangePred);
         try {
-            MultiComparator lowKeySearchCmp = BTreeUtils.getSearchMultiComparator(cmpFactories, lowKey);
-            MultiComparator highKeySearchCmp = BTreeUtils.getSearchMultiComparator(cmpFactories, highKey);
-            RangePredicate rangePred;
-            if (minFilterTuple != null && maxFilterTuple != null) {
-                rangePred = new RangePredicate(lowKey, highKey, true, true, lowKeySearchCmp, highKeySearchCmp,
-                        minFilterTuple, maxFilterTuple);
-            } else {
-                rangePred = new RangePredicate(lowKey, highKey, true, true, lowKeySearchCmp, highKeySearchCmp);
-            }
-            indexAccessor.search(rangeCursor, rangePred);
-            try {
-                while (rangeCursor.hasNext()) {
-                    rangeCursor.next();
-                    ITupleReference frameTuple = rangeCursor.getTuple();
-                    String rec = TupleUtils.printTuple(frameTuple, fieldSerdes);
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info(rec);
-                    }
+            while (rangeCursor.hasNext()) {
+                rangeCursor.next();
+                ITupleReference frameTuple = rangeCursor.getTuple();
+                String rec = TupleUtils.printTuple(frameTuple, fieldSerdes);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info(rec);
                 }
-            } finally {
-                rangeCursor.close();
             }
         } finally {
             rangeCursor.destroy();

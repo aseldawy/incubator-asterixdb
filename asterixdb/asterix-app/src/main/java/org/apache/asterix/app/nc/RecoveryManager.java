@@ -680,38 +680,30 @@ public class RecoveryManager implements IRecoveryManager, ILifeCycleComponent {
             ILSMIndex index =
                     (ILSMIndex) datasetLifecycleManager.getIndex(logRecord.getDatasetId(), logRecord.getResourceId());
             ILSMIndexAccessor indexAccessor = index.createAccessor(NoOpIndexAccessParameters.INSTANCE);
-            try {
-                if (logRecord.getNewOp() == AbstractIndexModificationOperationCallback.INSERT_BYTE) {
-                    indexAccessor.forceDelete(logRecord.getNewValue());
-                } else if (logRecord.getNewOp() == AbstractIndexModificationOperationCallback.DELETE_BYTE) {
-                    indexAccessor.forceInsert(logRecord.getOldValue());
-                } else if (logRecord.getNewOp() == AbstractIndexModificationOperationCallback.UPSERT_BYTE) {
-                    // undo, upsert the old value if found, otherwise, physical delete
-                    undoUpsert(indexAccessor, logRecord);
+            if (logRecord.getNewOp() == AbstractIndexModificationOperationCallback.INSERT_BYTE) {
+                indexAccessor.forceDelete(logRecord.getNewValue());
+            } else if (logRecord.getNewOp() == AbstractIndexModificationOperationCallback.DELETE_BYTE) {
+                indexAccessor.forceInsert(logRecord.getOldValue());
+            } else if (logRecord.getNewOp() == AbstractIndexModificationOperationCallback.UPSERT_BYTE) {
+                // undo, upsert the old value if found, otherwise, physical delete
+                if (logRecord.getOldValue() == null) {
+                    try {
+                        indexAccessor.forcePhysicalDelete(logRecord.getNewValue());
+                    } catch (HyracksDataException hde) {
+                        // Since we're undoing according the write-ahead log, the actual upserting tuple
+                        // might not have been written to memory yet.
+                        if (hde.getErrorCode() != ErrorCode.UPDATE_OR_DELETE_NON_EXISTENT_KEY) {
+                            throw hde;
+                        }
+                    }
                 } else {
-                    throw new IllegalStateException("Unsupported OperationType: " + logRecord.getNewOp());
+                    indexAccessor.forceUpsert(logRecord.getOldValue());
                 }
-            } finally {
-                indexAccessor.destroy();
+            } else {
+                throw new IllegalStateException("Unsupported OperationType: " + logRecord.getNewOp());
             }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to undo", e);
-        }
-    }
-
-    private static void undoUpsert(ILSMIndexAccessor indexAccessor, ILogRecord logRecord) throws HyracksDataException {
-        if (logRecord.getOldValue() == null) {
-            try {
-                indexAccessor.forcePhysicalDelete(logRecord.getNewValue());
-            } catch (HyracksDataException hde) {
-                // Since we're undoing according the write-ahead log, the actual upserting tuple
-                // might not have been written to memory yet.
-                if (hde.getErrorCode() != ErrorCode.UPDATE_OR_DELETE_NON_EXISTENT_KEY) {
-                    throw hde;
-                }
-            }
-        } else {
-            indexAccessor.forceUpsert(logRecord.getOldValue());
         }
     }
 

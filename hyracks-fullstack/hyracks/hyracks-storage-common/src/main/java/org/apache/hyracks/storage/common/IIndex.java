@@ -134,7 +134,7 @@ public interface IIndex {
     /**
      * @param fillFactor
      * @param verifyInput
-     * @throws HyracksDataException
+     * @throws IndexException
      */
     public IIndexBulkLoader createBulkLoader(float fillFactor, boolean verifyInput, long numElementsHint,
             boolean checkIfEmptyIndex) throws HyracksDataException;

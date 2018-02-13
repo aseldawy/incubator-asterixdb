@@ -18,26 +18,13 @@
  */
 package org.apache.hyracks.storage.am.common.api;
 
-import org.apache.hyracks.api.dataflow.IDestroyable;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.storage.am.common.ophelpers.IndexOperation;
 
-public interface IIndexOperationContext extends IDestroyable {
-    /**
-     * Set the next intended operation for this context
-     *
-     * @param newOp
-     * @throws HyracksDataException
-     */
+public interface IIndexOperationContext {
     void setOperation(IndexOperation newOp) throws HyracksDataException;
 
-    /**
-     * @return the intended operation
-     */
     IndexOperation getOperation();
 
-    /**
-     * Release resources associated with the context and prepare it for the next use
-     */
     void reset();
 }

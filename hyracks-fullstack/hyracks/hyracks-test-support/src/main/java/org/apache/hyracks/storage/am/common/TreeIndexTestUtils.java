@@ -44,6 +44,7 @@ import org.apache.hyracks.storage.am.common.api.ITreeIndexCursor;
 import org.apache.hyracks.storage.common.IIndexBulkLoader;
 import org.apache.hyracks.storage.common.IIndexCursor;
 import org.apache.hyracks.storage.common.ISearchPredicate;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -122,19 +123,10 @@ public abstract class TreeIndexTestUtils {
             LOGGER.info("Testing Scan.");
         }
         IIndexCursor scanCursor = ctx.getIndexAccessor().createSearchCursor(false);
-        try {
-            ISearchPredicate nullPred = createNullSearchPredicate();
-            ctx.getIndexAccessor().search(scanCursor, nullPred);
-            try {
-                Iterator<CheckTuple> checkIter = ctx.getCheckTuples().iterator();
-                checkExpectedResults(scanCursor, ctx.getCheckTuples(), ctx.getFieldSerdes(), ctx.getKeyFieldCount(),
-                        checkIter);
-            } finally {
-                scanCursor.close();
-            }
-        } finally {
-            scanCursor.destroy();
-        }
+        ISearchPredicate nullPred = createNullSearchPredicate();
+        ctx.getIndexAccessor().search(scanCursor, nullPred);
+        Iterator<CheckTuple> checkIter = ctx.getCheckTuples().iterator();
+        checkExpectedResults(scanCursor, ctx.getCheckTuples(), ctx.getFieldSerdes(), ctx.getKeyFieldCount(), checkIter);
     }
 
     public void checkDiskOrderScan(IIndexTestContext ctx) throws Exception {
@@ -143,29 +135,34 @@ public abstract class TreeIndexTestUtils {
                 LOGGER.info("Testing Disk-Order Scan.");
             }
             ITreeIndexAccessor treeIndexAccessor = (ITreeIndexAccessor) ctx.getIndexAccessor();
+            ITreeIndexCursor diskOrderCursor = treeIndexAccessor.createDiskOrderScanCursor();
+            treeIndexAccessor.diskOrderScan(diskOrderCursor);
+            int actualCount = 0;
             try {
-                ITreeIndexCursor diskOrderCursor = treeIndexAccessor.createDiskOrderScanCursor();
-                try {
-                    int actualCount = 0;
-                    treeIndexAccessor.diskOrderScan(diskOrderCursor);
-                    try {
-                        actualCount = scan(ctx, diskOrderCursor);
-                    } finally {
-                        diskOrderCursor.close();
+                while (diskOrderCursor.hasNext()) {
+                    diskOrderCursor.next();
+                    ITupleReference tuple = diskOrderCursor.getTuple();
+                    CheckTuple checkTuple =
+                            createCheckTupleFromTuple(tuple, ctx.getFieldSerdes(), ctx.getKeyFieldCount());
+                    if (!checkDiskOrderScanResult(tuple, checkTuple, ctx)) {
+                        fail("Disk-order scan returned unexpected answer: " + checkTuple.toString());
                     }
-                    if (actualCount < ctx.getCheckTuples().size()) {
-                        fail("Disk-order scan returned fewer answers than expected.\nExpected: "
-                                + ctx.getCheckTuples().size() + "\nActual  : " + actualCount);
-                    }
-                    if (actualCount > ctx.getCheckTuples().size()) {
-                        fail("Disk-order scan returned more answers than expected.\nExpected: "
-                                + ctx.getCheckTuples().size() + "\nActual  : " + actualCount);
-                    }
-                } finally {
-                    diskOrderCursor.destroy();
+                    actualCount++;
+                }
+                if (actualCount < ctx.getCheckTuples().size()) {
+                    fail("Disk-order scan returned fewer answers than expected.\nExpected: "
+                            + ctx.getCheckTuples().size() + "\nActual  : " + actualCount);
+                }
+                if (actualCount > ctx.getCheckTuples().size()) {
+                    fail("Disk-order scan returned more answers than expected.\nExpected: "
+                            + ctx.getCheckTuples().size() + "\nActual  : " + actualCount);
                 }
             } finally {
-                treeIndexAccessor.destroy();
+                try {
+                    diskOrderCursor.destroy();
+                } catch (Exception ex) {
+                    LOGGER.log(Level.WARN, "Error during scan cursor close", ex);
+                }
             }
         } catch (UnsupportedOperationException e) {
             // Ignore exception because some indexes, e.g. the LSMTrees, don't
@@ -182,19 +179,7 @@ public abstract class TreeIndexTestUtils {
         }
     }
 
-    private int scan(IIndexTestContext ctx, ITreeIndexCursor diskOrderCursor) throws HyracksDataException {
-        int actualCount = 0;
-        while (diskOrderCursor.hasNext()) {
-            diskOrderCursor.next();
-            ITupleReference tuple = diskOrderCursor.getTuple();
-            CheckTuple checkTuple = createCheckTupleFromTuple(tuple, ctx.getFieldSerdes(), ctx.getKeyFieldCount());
-            if (!checkDiskOrderScanResult(tuple, checkTuple, ctx)) {
-                fail("Disk-order scan returned unexpected answer: " + checkTuple.toString());
-            }
-            actualCount++;
-        }
-        return actualCount;
-    }
+    @SuppressWarnings("unchecked")
 
     public Pair<ITupleReference, ITupleReference> insertIntTuples(IIndexTestContext ctx, int numTuples, Random rnd)
             throws Exception {

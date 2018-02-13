@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.apache.hyracks.api.dataflow.value.IBinaryComparatorFactory;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
+import org.apache.hyracks.data.std.accessors.PointableBinaryComparatorFactory;
+import org.apache.hyracks.data.std.primitive.IntegerPointable;
 import org.apache.hyracks.dataflow.common.comm.io.ArrayTupleBuilder;
 import org.apache.hyracks.dataflow.common.comm.io.ArrayTupleReference;
 import org.apache.hyracks.dataflow.common.data.accessors.ITupleReference;
@@ -34,12 +37,15 @@ import org.apache.hyracks.dataflow.common.data.marshalling.IntegerSerializerDese
 import org.apache.hyracks.dataflow.common.utils.TupleUtils;
 import org.apache.hyracks.storage.am.btree.api.IBTreeInteriorFrame;
 import org.apache.hyracks.storage.am.btree.api.IBTreeLeafFrame;
+import org.apache.hyracks.storage.am.btree.frames.BTreeNSMInteriorFrameFactory;
+import org.apache.hyracks.storage.am.btree.frames.BTreeNSMLeafFrameFactory;
 import org.apache.hyracks.storage.am.btree.impls.BTree;
 import org.apache.hyracks.storage.am.btree.impls.BTree.BTreeAccessor;
 import org.apache.hyracks.storage.am.btree.impls.DiskBTree;
 import org.apache.hyracks.storage.am.btree.impls.RangePredicate;
 import org.apache.hyracks.storage.am.common.TestOperationCallback;
 import org.apache.hyracks.storage.am.common.api.IMetadataPageManager;
+import org.apache.hyracks.storage.am.common.api.ITreeIndexFrameFactory;
 import org.apache.hyracks.storage.am.common.freepage.LinkedMetaDataPageManager;
 import org.apache.hyracks.storage.am.common.impls.IndexAccessParameters;
 import org.apache.hyracks.storage.common.IIndexBulkLoader;
@@ -83,18 +89,29 @@ public class DiskBTreeSearchCursorTest extends BTreeSearchCursorTest {
     private void batchPointLookupTest(int numKeys, int maxKey, int minSearchKey, int maxSearchKey) throws Exception {
 
         IBufferCache bufferCache = harness.getBufferCache();
-        IBTreeLeafFrame leafFrame = (IBTreeLeafFrame) LEAF_FRAME_FACTORY.createFrame();
-        IBTreeInteriorFrame interiorFrame = (IBTreeInteriorFrame) INTERIOR_FRAME_FACTORY.createFrame();
-        IMetadataPageManager freePageManager = new LinkedMetaDataPageManager(bufferCache, META_FRAME_FACTORY);
-        DiskBTree btree = new DiskBTree(bufferCache, freePageManager, INTERIOR_FRAME_FACTORY, LEAF_FRAME_FACTORY,
-                CMP_FACTORIES, FIELD_COUNT, harness.getFileReference());
+
+        // declare keys
+        int keyFieldCount = 1;
+        IBinaryComparatorFactory[] cmpFactories = new IBinaryComparatorFactory[keyFieldCount];
+        cmpFactories[0] = PointableBinaryComparatorFactory.of(IntegerPointable.FACTORY);
+
+        ITreeIndexFrameFactory leafFrameFactory = new BTreeNSMLeafFrameFactory(tupleWriterFactory);
+        ITreeIndexFrameFactory interiorFrameFactory = new BTreeNSMInteriorFrameFactory(tupleWriterFactory);
+
+        IBTreeLeafFrame leafFrame = (IBTreeLeafFrame) leafFrameFactory.createFrame();
+        IBTreeInteriorFrame interiorFrame = (IBTreeInteriorFrame) interiorFrameFactory.createFrame();
+
+        IMetadataPageManager freePageManager = new LinkedMetaDataPageManager(bufferCache, metaFrameFactory);
+
+        DiskBTree btree = new DiskBTree(bufferCache, freePageManager, interiorFrameFactory, leafFrameFactory,
+                cmpFactories, fieldCount, harness.getFileReference());
         btree.create();
         btree.activate();
 
         TreeSet<Integer> uniqueKeys = new TreeSet<>();
         ArrayList<Integer> keys = new ArrayList<>();
         while (uniqueKeys.size() < numKeys) {
-            int key = RANDOM.nextInt() % maxKey;
+            int key = rnd.nextInt() % maxKey;
             uniqueKeys.add(key);
         }
         for (Integer i : uniqueKeys) {
@@ -118,60 +135,58 @@ public class DiskBTreeSearchCursorTest extends BTreeSearchCursorTest {
         BTreeAccessor indexAccessor = btree.createAccessor(
                 new IndexAccessParameters(TestOperationCallback.INSTANCE, TestOperationCallback.INSTANCE));
         IIndexCursor pointCursor = indexAccessor.createPointCursor(false);
-        try {
-            for (int i = minKey; i < maxKey; i++) {
-                results.clear();
-                expectedResults.clear();
-                int lowKey = i;
-                int highKey = i;
-                RangePredicate rangePred = createRangePredicate(lowKey, highKey, true, true);
-                indexAccessor.search(pointCursor, rangePred);
-                try {
-                    while (pointCursor.hasNext()) {
-                        pointCursor.next();
-                        ITupleReference frameTuple = pointCursor.getTuple();
-                        ByteArrayInputStream inStream = new ByteArrayInputStream(frameTuple.getFieldData(0),
-                                frameTuple.getFieldStart(0), frameTuple.getFieldLength(0));
-                        DataInput dataIn = new DataInputStream(inStream);
-                        Integer res = IntegerSerializerDeserializer.INSTANCE.deserialize(dataIn);
-                        results.add(res);
-                    }
-                } finally {
-                    pointCursor.close();
+        for (int i = minKey; i < maxKey; i++) {
+            results.clear();
+            expectedResults.clear();
+
+            int lowKey = i;
+            int highKey = i;
+            RangePredicate rangePred = createRangePredicate(lowKey, highKey, true, true);
+            indexAccessor.search(pointCursor, rangePred);
+            try {
+                while (pointCursor.hasNext()) {
+                    pointCursor.next();
+                    ITupleReference frameTuple = pointCursor.getTuple();
+                    ByteArrayInputStream inStream = new ByteArrayInputStream(frameTuple.getFieldData(0),
+                            frameTuple.getFieldStart(0), frameTuple.getFieldLength(0));
+                    DataInput dataIn = new DataInputStream(inStream);
+                    Integer res = IntegerSerializerDeserializer.INSTANCE.deserialize(dataIn);
+                    results.add(res);
                 }
-                getExpectedResults(expectedResults, keys, lowKey, highKey, true, true);
-                if (results.size() == expectedResults.size()) {
-                    for (int k = 0; k < results.size(); k++) {
-                        if (!results.get(k).equals(expectedResults.get(k))) {
-                            if (LOGGER.isInfoEnabled()) {
-                                LOGGER.info("DIFFERENT RESULTS AT: i=" + i + " k=" + k);
-                                LOGGER.info(results.get(k) + " " + expectedResults.get(k));
-                            }
-                            return false;
-                        }
-                    }
-                } else {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("UNEQUAL NUMBER OF RESULTS AT: i=" + i);
-                        LOGGER.info("RESULTS: " + results.size());
-                        LOGGER.info("EXPECTED RESULTS: " + expectedResults.size());
-                    }
-                    return false;
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } finally {
-            pointCursor.destroy();;
+
+            getExpectedResults(expectedResults, keys, lowKey, highKey, true, true);
+
+            if (results.size() == expectedResults.size()) {
+                for (int k = 0; k < results.size(); k++) {
+                    if (!results.get(k).equals(expectedResults.get(k))) {
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info("DIFFERENT RESULTS AT: i=" + i + " k=" + k);
+                            LOGGER.info(results.get(k) + " " + expectedResults.get(k));
+                        }
+                        return false;
+                    }
+                }
+            } else {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("UNEQUAL NUMBER OF RESULTS AT: i=" + i);
+                    LOGGER.info("RESULTS: " + results.size());
+                    LOGGER.info("EXPECTED RESULTS: " + expectedResults.size());
+                }
+                return false;
+            }
         }
+
+        pointCursor.close();
+
         return true;
     }
 
     @Override
     protected void insertBTree(List<Integer> keys, BTree btree) throws HyracksDataException {
-        bulkLoadBTree(keys, btree);
-    }
-
-    public static void bulkLoadBTree(List<Integer> keys, BTree btree) throws HyracksDataException {
-        ArrayTupleBuilder tupleBuilder = new ArrayTupleBuilder(FIELD_COUNT);
+        ArrayTupleBuilder tupleBuilder = new ArrayTupleBuilder(fieldCount);
         ArrayTupleReference tuple = new ArrayTupleReference();
 
         IIndexBulkLoader bulkloader = btree.createBulkLoader(1, true, 0, true);

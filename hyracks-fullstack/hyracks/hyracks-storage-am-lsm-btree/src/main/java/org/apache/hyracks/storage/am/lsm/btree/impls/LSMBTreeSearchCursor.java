@@ -24,11 +24,11 @@ import org.apache.hyracks.dataflow.common.data.accessors.ITupleReference;
 import org.apache.hyracks.storage.am.btree.impls.RangePredicate;
 import org.apache.hyracks.storage.am.common.api.ILSMIndexCursor;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMIndexOperationContext;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
+import org.apache.hyracks.storage.common.IIndexCursor;
 import org.apache.hyracks.storage.common.ISearchPredicate;
 
-public class LSMBTreeSearchCursor extends EnforcedIndexCursor implements ILSMIndexCursor {
+public class LSMBTreeSearchCursor implements ILSMIndexCursor {
 
     public enum LSMBTreeSearchType {
         POINT,
@@ -47,43 +47,40 @@ public class LSMBTreeSearchCursor extends EnforcedIndexCursor implements ILSMInd
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
         LSMBTreeCursorInitialState lsmInitialState = (LSMBTreeCursorInitialState) initialState;
         RangePredicate btreePred = (RangePredicate) searchPred;
-        currentCursor = lsmInitialState.isDiskComponentScan() ? scanCursor
-                : btreePred.isPointPredicate(lsmInitialState.getOriginalKeyComparator()) ? pointCursor : rangeCursor;
+
+        currentCursor =
+                btreePred.isPointPredicate(lsmInitialState.getOriginalKeyComparator()) ? pointCursor : rangeCursor;
         currentCursor.open(lsmInitialState, searchPred);
     }
 
+    public void scan(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+        currentCursor = scanCursor;
+        currentCursor.open(initialState, searchPred);
+    }
+
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         return currentCursor.hasNext();
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         currentCursor.next();
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
-        try {
-            pointCursor.destroy();
-        } finally {
-            try {
-                rangeCursor.destroy();
-            } finally {
-                try {
-                    scanCursor.destroy();
-                } finally {
-                    currentCursor = null;
-                }
-            }
+    public void destroy() throws HyracksDataException {
+        if (currentCursor != null) {
+            currentCursor.destroy();
         }
+        currentCursor = null;
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
+    public void close() throws HyracksDataException {
         if (currentCursor != null) {
             currentCursor.close();
         }
@@ -91,7 +88,7 @@ public class LSMBTreeSearchCursor extends EnforcedIndexCursor implements ILSMInd
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return currentCursor.getTuple();
     }
 

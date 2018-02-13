@@ -68,8 +68,12 @@ public abstract class AbstractIndexTestWorker extends Thread implements ITreeInd
     }
 
     protected void consumeCursorTuples(IIndexCursor cursor) throws HyracksDataException {
-        while (cursor.hasNext()) {
-            cursor.next();
+        try {
+            while (cursor.hasNext()) {
+                cursor.next();
+            }
+        } finally {
+            cursor.destroy();
         }
     }
 }

@@ -29,8 +29,6 @@ import org.apache.hyracks.api.dataflow.value.IMissingWriterFactory;
 import org.apache.hyracks.api.dataflow.value.RecordDescriptor;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.api.job.profiling.IOperatorStats;
-import org.apache.hyracks.api.util.DestroyUtils;
-import org.apache.hyracks.api.util.ExceptionUtils;
 import org.apache.hyracks.control.common.job.profiling.OperatorStats;
 import org.apache.hyracks.dataflow.common.comm.io.ArrayTupleBuilder;
 import org.apache.hyracks.dataflow.common.comm.io.FrameTupleAccessor;
@@ -45,7 +43,6 @@ import org.apache.hyracks.storage.am.common.api.ISearchOperationCallbackFactory;
 import org.apache.hyracks.storage.am.common.impls.IndexAccessParameters;
 import org.apache.hyracks.storage.am.common.impls.NoOpOperationCallback;
 import org.apache.hyracks.storage.am.common.tuples.PermutingFrameTupleReference;
-import org.apache.hyracks.storage.am.common.util.ResourceReleaseUtils;
 import org.apache.hyracks.storage.common.IIndex;
 import org.apache.hyracks.storage.common.IIndexAccessParameters;
 import org.apache.hyracks.storage.common.IIndexAccessor;
@@ -221,15 +218,7 @@ public abstract class IndexSearchOperatorNodePushable extends AbstractUnaryInput
 
     @Override
     public void close() throws HyracksDataException {
-        Throwable failure = releaseResources();
-        failure = ResourceReleaseUtils.close(writer, failure);
-        if (failure != null) {
-            throw HyracksDataException.create(failure);
-        }
-    }
-
-    private Throwable releaseResources() {
-        Throwable failure = null;
+        HyracksDataException closeException = null;
         if (index != null) {
             // if index == null, then the index open was not successful
             if (!failed) {
@@ -237,24 +226,44 @@ public abstract class IndexSearchOperatorNodePushable extends AbstractUnaryInput
                     if (appender.getTupleCount() > 0) {
                         appender.write(writer, true);
                     }
-                } catch (Throwable th) { // NOSONAR Must ensure writer.fail is called.
-                    // subsequently, the failure will be thrown
-                    failure = th;
-                }
-                if (failure != null) {
-                    try {
-                        writer.fail();
-                    } catch (Throwable th) {// NOSONAR Must cursor.close is called.
-                        // subsequently, the failure will be thrown
-                        failure = ExceptionUtils.suppress(failure, th);
-                    }
+                } catch (Throwable th) {
+                    writer.fail();
+                    closeException = HyracksDataException.create(th);
                 }
             }
-            failure = ResourceReleaseUtils.close(cursor, failure);
-            failure = DestroyUtils.destroy(failure, cursor, indexAccessor);
-            failure = ResourceReleaseUtils.close(indexHelper, failure);
+
+            try {
+                cursor.destroy();
+            } catch (Throwable th) {
+                if (closeException == null) {
+                    closeException = HyracksDataException.create(th);
+                } else {
+                    closeException.addSuppressed(th);
+                }
+            }
+            try {
+                indexHelper.close();
+            } catch (Throwable th) {
+                if (closeException == null) {
+                    closeException = new HyracksDataException(th);
+                } else {
+                    closeException.addSuppressed(th);
+                }
+            }
         }
-        return failure;
+        try {
+            // will definitely be called regardless of exceptions
+            writer.close();
+        } catch (Throwable th) {
+            if (closeException == null) {
+                closeException = new HyracksDataException(th);
+            } else {
+                closeException.addSuppressed(th);
+            }
+        }
+        if (closeException != null) {
+            throw closeException;
+        }
     }
 
     @Override

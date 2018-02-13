@@ -26,15 +26,12 @@ import org.apache.asterix.common.exceptions.RuntimeDataException;
 import org.apache.asterix.external.api.IRawRecord;
 import org.apache.asterix.external.api.IRecordDataParser;
 import org.apache.asterix.external.api.IRecordReader;
-import org.apache.asterix.external.util.DataflowUtils;
 import org.apache.asterix.external.util.ExternalDataConstants;
 import org.apache.asterix.external.util.FeedLogManager;
 import org.apache.hyracks.api.comm.IFrameWriter;
 import org.apache.hyracks.api.context.IHyracksTaskContext;
 import org.apache.hyracks.api.exceptions.HyracksDataException;
-import org.apache.hyracks.api.util.ExceptionUtils;
 import org.apache.hyracks.dataflow.common.comm.io.ArrayTupleBuilder;
-import org.apache.hyracks.storage.am.common.util.ResourceReleaseUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,7 +74,7 @@ public class FeedRecordDataFlowController<T> extends AbstractFeedDataFlowControl
                 setState(State.STARTED);
             }
         }
-        Throwable failure = null;
+        Exception failure = null;
         try {
             tupleForwarder.initialize(ctx, writer);
             while (hasNext()) {
@@ -114,7 +111,7 @@ public class FeedRecordDataFlowController<T> extends AbstractFeedDataFlowControl
                 failure = e;
                 tupleForwarder.fail();
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             failure = e;
             tupleForwarder.fail();
             LOGGER.log(Level.WARN, "Failure while operating a feed source", e);
@@ -177,12 +174,30 @@ public class FeedRecordDataFlowController<T> extends AbstractFeedDataFlowControl
         }
     }
 
-    private Throwable finish(Throwable failure) {
-        Throwable th = ResourceReleaseUtils.close(recordReader, null);
-        th = DataflowUtils.close(tupleForwarder, th);
-        closeSignal();
+    private Exception finish(Exception failure) {
+        HyracksDataException hde = null;
+        try {
+            recordReader.close();
+        } catch (Exception th) {
+            LOGGER.log(Level.WARN, "Failure during while operating a feed source", th);
+            hde = HyracksDataException.suppress(hde, th);
+        }
+        try {
+            tupleForwarder.close();
+        } catch (Exception th) {
+            hde = HyracksDataException.suppress(hde, th);
+        } finally {
+            closeSignal();
+        }
         setState(State.STOPPED);
-        return ExceptionUtils.suppress(failure, th);
+        if (hde != null) {
+            if (failure != null) {
+                failure.addSuppressed(hde);
+            } else {
+                return hde;
+            }
+        }
+        return failure;
     }
 
     private boolean parseAndForward(IRawRecord<? extends T> record) throws IOException {

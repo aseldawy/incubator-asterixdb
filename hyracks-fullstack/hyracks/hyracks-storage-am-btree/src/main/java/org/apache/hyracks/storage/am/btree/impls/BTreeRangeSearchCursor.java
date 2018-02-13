@@ -29,7 +29,6 @@ import org.apache.hyracks.storage.am.common.api.ITreeIndexCursor;
 import org.apache.hyracks.storage.am.common.api.ITreeIndexTupleReference;
 import org.apache.hyracks.storage.am.common.ophelpers.FindTupleMode;
 import org.apache.hyracks.storage.am.common.ophelpers.FindTupleNoExactMatchPolicy;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
 import org.apache.hyracks.storage.common.IIndexAccessor;
 import org.apache.hyracks.storage.common.ISearchOperationCallback;
@@ -39,7 +38,7 @@ import org.apache.hyracks.storage.common.buffercache.IBufferCache;
 import org.apache.hyracks.storage.common.buffercache.ICachedPage;
 import org.apache.hyracks.storage.common.file.BufferedFileHandle;
 
-public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITreeIndexCursor {
+public class BTreeRangeSearchCursor implements ITreeIndexCursor {
 
     protected final IBTreeLeafFrame frame;
     protected final ITreeIndexTupleReference frameTuple;
@@ -82,12 +81,19 @@ public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITree
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
-        // No Op all resources are released in the close call
+    public void destroy() throws HyracksDataException {
+        if (page != null) {
+            releasePage();
+        }
+
+        tupleIndex = 0;
+        page = null;
+        isPageDirty = false;
+        pred = null;
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return frameTuple;
     }
 
@@ -112,7 +118,7 @@ public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITree
     }
 
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         int nextLeafPage;
         if (tupleIndex >= frame.getTupleCount()) {
             nextLeafPage = frame.getNextLeaf();
@@ -153,10 +159,8 @@ public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITree
 
                 // retraverse the index looking for the reconciled key
                 reusablePredicate.setLowKey(reconciliationTuple, true);
-                // before re-using the cursor, we must close it
-                close();
-                // this search call will re-open the cursor
                 accessor.search(this, reusablePredicate);
+
                 if (stopTupleIndex < 0 || tupleIndex > stopTupleIndex) {
                     return false;
                 }
@@ -173,7 +177,7 @@ public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITree
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         tupleIndex++;
     }
 
@@ -212,7 +216,7 @@ public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITree
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
         // in case open is called multiple times without closing
         if (page != null) {
             resetBeforeOpen();
@@ -258,15 +262,8 @@ public class BTreeRangeSearchCursor extends EnforcedIndexCursor implements ITree
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
-        if (page != null) {
-            releasePage();
-        }
-
-        tupleIndex = 0;
-        page = null;
-        isPageDirty = false;
-        pred = null;
+    public void close() throws HyracksDataException {
+        destroy();
     }
 
     @Override

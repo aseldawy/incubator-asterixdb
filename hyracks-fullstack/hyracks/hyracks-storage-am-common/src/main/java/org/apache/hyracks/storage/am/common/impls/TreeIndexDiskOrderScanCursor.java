@@ -20,17 +20,17 @@
 package org.apache.hyracks.storage.am.common.impls;
 
 import org.apache.hyracks.api.exceptions.HyracksDataException;
+import org.apache.hyracks.dataflow.common.data.accessors.ITupleReference;
 import org.apache.hyracks.storage.am.common.api.ITreeIndexCursor;
 import org.apache.hyracks.storage.am.common.api.ITreeIndexFrame;
 import org.apache.hyracks.storage.am.common.api.ITreeIndexTupleReference;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
 import org.apache.hyracks.storage.common.ISearchPredicate;
 import org.apache.hyracks.storage.common.buffercache.IBufferCache;
 import org.apache.hyracks.storage.common.buffercache.ICachedPage;
 import org.apache.hyracks.storage.common.file.BufferedFileHandle;
 
-public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements ITreeIndexCursor {
+public class TreeIndexDiskOrderScanCursor implements ITreeIndexCursor {
 
     protected int tupleIndex = 0;
     protected int fileId = -1;
@@ -48,15 +48,13 @@ public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
-        tupleIndex = 0;
-        currentPageId = -1;
-        maxPageId = -1;
+    public void destroy() throws HyracksDataException {
         releasePage();
+        page = null;
     }
 
     @Override
-    public ITreeIndexTupleReference doGetTuple() {
+    public ITreeIndexTupleReference getTuple() {
         return frameTuple;
     }
 
@@ -67,6 +65,7 @@ public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements
             }
 
             releasePage();
+
             ICachedPage nextPage = acquireNextPage();
             page = nextPage;
             frame.setPage(page);
@@ -81,7 +80,7 @@ public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements
     }
 
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         if (currentPageId > maxPageId) {
             return false;
         }
@@ -99,12 +98,16 @@ public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         tupleIndex++;
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+        // in case open is called multiple times without closing
+        if (page != null) {
+            releasePage();
+        }
         page = initialState.getPage();
         tupleIndex = 0;
         frame.setPage(page);
@@ -112,11 +115,11 @@ public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
+    public void close() {
         tupleIndex = 0;
         currentPageId = -1;
         maxPageId = -1;
-        releasePage();
+        page = null;
     }
 
     @Override
@@ -143,11 +146,8 @@ public class TreeIndexDiskOrderScanCursor extends EnforcedIndexCursor implements
     }
 
     protected void releasePage() throws HyracksDataException {
-        if (page != null) {
-            page.releaseReadLatch();
-            bufferCache.unpin(page);
-            page = null;
-        }
+        page.releaseReadLatch();
+        bufferCache.unpin(page);
     }
 
     protected ICachedPage acquireNextPage() throws HyracksDataException {

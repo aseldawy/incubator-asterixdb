@@ -30,7 +30,6 @@ import org.apache.hyracks.storage.am.lsm.common.api.ILSMComponent.LSMComponentTy
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMComponentFilter;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMHarness;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMIndexOperationContext;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
 import org.apache.hyracks.storage.common.IIndexAccessor;
 import org.apache.hyracks.storage.common.IIndexCursor;
@@ -42,7 +41,7 @@ import org.apache.hyracks.storage.common.MultiComparator;
  * Searches the components one-by-one, completely consuming a cursor before moving on to the next one.
  * Therefore, the are no guarantees about sort order of the results.
  */
-public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements ILSMIndexCursor {
+public class LSMInvertedIndexSearchCursor implements ILSMIndexCursor {
 
     private IIndexAccessor currentAccessor;
     private IIndexCursor currentCursor;
@@ -67,7 +66,7 @@ public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements
     private final long[] hashes = BloomFilter.createHashArray();
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
         LSMInvertedIndexSearchCursorInitialState lsmInitState = (LSMInvertedIndexSearchCursorInitialState) initialState;
         harness = lsmInitState.getLSMHarness();
         operationalComponents = lsmInitState.getOperationalComponents();
@@ -110,7 +109,7 @@ public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements
                     return true;
                 }
             } finally {
-                deletedKeysBTreeCursors[i].close();
+                deletedKeysBTreeCursors[i].destroy();
             }
         }
         return false;
@@ -141,7 +140,7 @@ public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements
     }
 
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         if (!tupleConsumed) {
             return true;
         }
@@ -149,7 +148,7 @@ public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements
             if (nextValidTuple()) {
                 return true;
             }
-            currentCursor.close();
+            currentCursor.destroy();
             accessorIndex++;
         }
         while (accessorIndex < indexAccessors.size()) {
@@ -161,28 +160,28 @@ public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements
                 return true;
             }
             // Close as we go to release resources.
-            currentCursor.close();
+            currentCursor.destroy();
             accessorIndex++;
         }
         return false;
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         // Mark the tuple as consumed, so hasNext() can move on.
         tupleConsumed = true;
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
-        doClose();
+    public void destroy() throws HyracksDataException {
+        close();
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
+    public void close() throws HyracksDataException {
         try {
             if (currentCursor != null) {
-                currentCursor.close();
+                currentCursor.destroy();
                 currentCursor = null;
             }
             accessorIndex = 0;
@@ -194,7 +193,7 @@ public class LSMInvertedIndexSearchCursor extends EnforcedIndexCursor implements
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return currentCursor.getTuple();
     }
 

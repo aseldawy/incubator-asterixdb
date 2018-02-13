@@ -150,7 +150,7 @@ public class LSMBTreeMergeFailTest {
         }
 
         @Override
-        public boolean doHasNext() throws HyracksDataException {
+        public boolean hasNext() throws HyracksDataException {
             throw new UnsupportedOperationException();
         }
     }

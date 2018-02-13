@@ -43,7 +43,6 @@ public class LSMInvertedIndexAccessor implements ILSMIndexAccessor, IInvertedInd
 
     protected final ILSMHarness lsmHarness;
     protected final ILSMIndexOperationContext ctx;
-    private boolean destroyed = false;
 
     public LSMInvertedIndexAccessor(ILSMHarness lsmHarness, ILSMIndexOperationContext ctx) {
         this.lsmHarness = lsmHarness;
@@ -225,14 +224,5 @@ public class LSMInvertedIndexAccessor implements ILSMIndexAccessor, IInvertedInd
     @Override
     public ILSMIndexOperationContext getOpContext() {
         return ctx;
-    }
-
-    @Override
-    public void destroy() throws HyracksDataException {
-        if (destroyed) {
-            return;
-        }
-        destroyed = true;
-        ctx.destroy();
     }
 }

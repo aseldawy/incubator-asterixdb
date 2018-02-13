@@ -81,11 +81,7 @@ public class InMemoryInvertedListCursor implements IInvertedListCursor {
 
     @Override
     public int compareTo(IInvertedListCursor cursor) {
-        try {
-            return size() - cursor.size();
-        } catch (HyracksDataException hde) {
-            throw new IllegalStateException(hde);
-        }
+        return size() - cursor.size();
     }
 
     public void reset(ITupleReference tuple) throws HyracksDataException {
@@ -117,7 +113,7 @@ public class InMemoryInvertedListCursor implements IInvertedListCursor {
     @Override
     public void unpinPages() throws HyracksDataException {
         if (cursorNeedsClose) {
-            btreeCursor.close();
+            btreeCursor.destroy();
             cursorNeedsClose = false;
         }
     }
@@ -139,22 +135,29 @@ public class InMemoryInvertedListCursor implements IInvertedListCursor {
     }
 
     @Override
-    public int size() throws HyracksDataException {
+    public int size() {
         if (numElements < 0) {
             btreePred.setLowKeyComparator(tokenFieldsCmp);
             btreePred.setHighKeyComparator(tokenFieldsCmp);
             btreePred.setLowKey(tokenTuple, true);
             btreePred.setHighKey(tokenTuple, true);
+
             // Perform the count.
-            btreeAccessor.search(countingCursor, btreePred);
             try {
+                btreeAccessor.search(countingCursor, btreePred);
                 while (countingCursor.hasNext()) {
                     countingCursor.next();
                     ITupleReference countTuple = countingCursor.getTuple();
                     numElements = IntegerPointable.getInteger(countTuple.getFieldData(0), countTuple.getFieldStart(0));
                 }
+            } catch (HyracksDataException e) {
+                e.printStackTrace();
             } finally {
-                countingCursor.close();
+                try {
+                    countingCursor.destroy();
+                } catch (HyracksDataException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return numElements;
@@ -194,6 +197,7 @@ public class InMemoryInvertedListCursor implements IInvertedListCursor {
         try {
             containsKey = btreeCursor.hasNext();
         } finally {
+            btreeCursor.destroy();
             btreeCursor.close();
             btreeSearchTuple.removeLastTuple();
         }
@@ -215,6 +219,7 @@ public class InMemoryInvertedListCursor implements IInvertedListCursor {
                 strBuilder.append(o.toString() + " ");
             }
         } finally {
+            btreeCursor.destroy();
             btreeCursor.close();
         }
         btreeAccessor.search(btreeCursor, btreePred);

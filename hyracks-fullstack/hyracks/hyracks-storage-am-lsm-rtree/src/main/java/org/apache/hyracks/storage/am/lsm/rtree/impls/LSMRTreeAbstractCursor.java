@@ -41,12 +41,12 @@ import org.apache.hyracks.storage.am.rtree.impls.RTree;
 import org.apache.hyracks.storage.am.rtree.impls.RTree.RTreeAccessor;
 import org.apache.hyracks.storage.am.rtree.impls.RTreeSearchCursor;
 import org.apache.hyracks.storage.am.rtree.impls.SearchPredicate;
-import org.apache.hyracks.storage.common.EnforcedIndexCursor;
 import org.apache.hyracks.storage.common.ICursorInitialState;
+import org.apache.hyracks.storage.common.IIndexCursor;
 import org.apache.hyracks.storage.common.ISearchPredicate;
 import org.apache.hyracks.storage.common.MultiComparator;
 
-public abstract class LSMRTreeAbstractCursor extends EnforcedIndexCursor implements ILSMIndexCursor {
+public abstract class LSMRTreeAbstractCursor implements ILSMIndexCursor {
 
     protected boolean open;
     protected RTreeSearchCursor[] rtreeCursors;
@@ -76,7 +76,7 @@ public abstract class LSMRTreeAbstractCursor extends EnforcedIndexCursor impleme
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
         LSMRTreeCursorInitialState lsmInitialState = (LSMRTreeCursorInitialState) initialState;
         if (btreeCmp == null) {
             btreeCmp = lsmInitialState.getBTreeCmp();
@@ -153,7 +153,7 @@ public abstract class LSMRTreeAbstractCursor extends EnforcedIndexCursor impleme
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
+    public void destroy() throws HyracksDataException {
         if (!open) {
             return;
         }
@@ -176,7 +176,7 @@ public abstract class LSMRTreeAbstractCursor extends EnforcedIndexCursor impleme
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return frameTuple;
     }
 

@@ -70,7 +70,10 @@ public class FixedSizeElementInvertedListCursor implements IInvertedListCursor {
 
     @Override
     public boolean hasNext() {
-        return currentElementIx < numElements;
+        if (currentElementIx < numElements)
+            return true;
+        else
+            return false;
     }
 
     @Override
@@ -200,9 +203,8 @@ public class FixedSizeElementInvertedListCursor implements IInvertedListCursor {
                 DataInput dataIn = new DataInputStream(inStream);
                 Object o = serdes[i].deserialize(dataIn);
                 strBuilder.append(o.toString());
-                if (i + 1 < tuple.getFieldCount()) {
+                if (i + 1 < tuple.getFieldCount())
                     strBuilder.append(",");
-                }
             }
             strBuilder.append(" ");
         }
@@ -215,7 +217,6 @@ public class FixedSizeElementInvertedListCursor implements IInvertedListCursor {
         return strBuilder.toString();
     }
 
-    @Override
     @SuppressWarnings("rawtypes")
     public String printCurrentElement(ISerializerDeserializer[] serdes) throws HyracksDataException {
         StringBuilder strBuilder = new StringBuilder();
@@ -225,9 +226,8 @@ public class FixedSizeElementInvertedListCursor implements IInvertedListCursor {
             DataInput dataIn = new DataInputStream(inStream);
             Object o = serdes[i].deserialize(dataIn);
             strBuilder.append(o.toString());
-            if (i + 1 < tuple.getFieldCount()) {
+            if (i + 1 < tuple.getFieldCount())
                 strBuilder.append(",");
-            }
         }
         return strBuilder.toString();
     }
@@ -249,23 +249,17 @@ public class FixedSizeElementInvertedListCursor implements IInvertedListCursor {
             }
         }
 
-        if (begin > arr.length - 1) {
+        if (begin > arr.length - 1)
             return -1;
-        }
-        if (key < arr[begin]) {
+        if (key < arr[begin])
             return begin;
-        } else {
+        else
             return -1;
-        }
     }
 
     @Override
     public int compareTo(IInvertedListCursor invListCursor) {
-        try {
-            return numElements - invListCursor.size();
-        } catch (HyracksDataException hde) {
-            throw new IllegalStateException(hde);
-        }
+        return numElements - invListCursor.size();
     }
 
     @Override

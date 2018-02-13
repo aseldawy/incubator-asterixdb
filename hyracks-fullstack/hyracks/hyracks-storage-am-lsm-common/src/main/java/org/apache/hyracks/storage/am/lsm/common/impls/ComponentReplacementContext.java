@@ -213,9 +213,4 @@ public class ComponentReplacementContext implements ILSMIndexOperationContext {
     public boolean isTracingEnabled() {
         return false;
     }
-
-    @Override
-    public void destroy() throws HyracksDataException {
-        // No Op.. Nothing to destroy
-    }
 }

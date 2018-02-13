@@ -140,19 +140,16 @@ public class LSMPrimaryUpsertOperatorNodePushable extends LSMIndexInsertUpdateDe
                     resetSearchPredicate(index);
                     if (isFiltered || isDelete || hasSecondaries) {
                         lsmAccessor.search(cursor, searchPred);
-                        try {
-                            if (cursor.hasNext()) {
-                                cursor.next();
-                                prevTuple = cursor.getTuple();
-                                appendFilterToPrevTuple();
-                                appendPrevRecord();
-                                appendPreviousMeta();
-                                appendFilterToOutput();
-                            } else {
-                                appendPreviousTupleAsMissing();
-                            }
-                        } finally {
+                        if (cursor.hasNext()) {
+                            cursor.next();
+                            prevTuple = cursor.getTuple();
                             cursor.close(); // end the search
+                            appendFilterToPrevTuple();
+                            appendPrevRecord();
+                            appendPreviousMeta();
+                            appendFilterToOutput();
+                        } else {
+                            appendPreviousTupleAsMissing();
                         }
                     } else {
                         searchCallback.before(key); // lock
@@ -244,8 +241,10 @@ public class LSMPrimaryUpsertOperatorNodePushable extends LSMIndexInsertUpdateDe
                     appender.write(writer, true);
                 }
             };
-        } catch (Throwable e) { // NOSONAR: Re-thrown
-            throw HyracksDataException.create(e);
+
+        } catch (Exception e) {
+            indexHelper.close();
+            throw new HyracksDataException(e);
         }
     }
 
@@ -320,6 +319,7 @@ public class LSMPrimaryUpsertOperatorNodePushable extends LSMIndexInsertUpdateDe
         if (isFiltered) {
             writeMissingField();
         }
+        cursor.close();
     }
 
     /**
@@ -362,9 +362,7 @@ public class LSMPrimaryUpsertOperatorNodePushable extends LSMIndexInsertUpdateDe
     public void close() throws HyracksDataException {
         try {
             try {
-                if (cursor != null) {
-                    cursor.destroy();
-                }
+                cursor.destroy();
             } finally {
                 writer.close();
             }

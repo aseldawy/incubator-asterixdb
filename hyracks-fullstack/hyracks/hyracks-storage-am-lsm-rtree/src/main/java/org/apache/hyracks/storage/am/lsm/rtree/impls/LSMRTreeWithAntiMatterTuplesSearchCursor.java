@@ -70,7 +70,7 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
     }
 
     @Override
-    public void doOpen(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
+    public void open(ICursorInitialState initialState, ISearchPredicate searchPred) throws HyracksDataException {
         LSMRTreeCursorInitialState lsmInitialState = (LSMRTreeCursorInitialState) initialState;
         cmp = lsmInitialState.getHilbertCmp();
         btreeCmp = lsmInitialState.getBTreeCmp();
@@ -136,7 +136,7 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
     }
 
     @Override
-    public boolean doHasNext() throws HyracksDataException {
+    public boolean hasNext() throws HyracksDataException {
         if (numMemoryComponents > 0) {
             if (foundNext) {
                 return true;
@@ -158,13 +158,13 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
                         return true;
                     }
                 }
-                mutableRTreeCursors[currentCursor].close();
+                mutableRTreeCursors[currentCursor].destroy();
                 currentCursor++;
                 searchNextCursor();
             }
-            while (super.doHasNext()) {
-                super.doNext();
-                ITupleReference diskRTreeTuple = super.doGetTuple();
+            while (super.hasNext()) {
+                super.next();
+                ITupleReference diskRTreeTuple = super.getTuple();
                 // TODO: at this time, we only add proceed().
                 // reconcile() and complete() can be added later after considering the semantics.
 
@@ -178,11 +178,13 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
                 }
             }
         } else {
-            if (super.doHasNext()) {
-                super.doNext();
-                ITupleReference diskRTreeTuple = super.doGetTuple();
+            if (super.hasNext()) {
+                super.next();
+                ITupleReference diskRTreeTuple = super.getTuple();
+
                 // TODO: at this time, we only add proceed() part.
                 // reconcile() and complete() can be added later after considering the semantics.
+
                 // Call proceed() to do necessary operations before returning this tuple.
                 // Since in-memory components don't exist, we can skip searching in-memory B-Trees.
                 searchCallback.proceed(diskRTreeTuple);
@@ -212,17 +214,17 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
     }
 
     @Override
-    public void doNext() throws HyracksDataException {
+    public void next() throws HyracksDataException {
         foundNext = false;
     }
 
     @Override
-    public ITupleReference doGetTuple() {
+    public ITupleReference getTuple() {
         return frameTuple;
     }
 
     @Override
-    public void doClose() throws HyracksDataException {
+    public void close() throws HyracksDataException {
         if (!open) {
             return;
         }
@@ -234,11 +236,11 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
                 btreeCursors[i].close();
             }
         }
-        super.doClose();
+        super.close();
     }
 
     @Override
-    public void doDestroy() throws HyracksDataException {
+    public void destroy() throws HyracksDataException {
         if (!open) {
             return;
         }
@@ -250,7 +252,7 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
         }
         currentCursor = 0;
         open = false;
-        super.doDestroy();
+        super.destroy();
     }
 
     @Override
@@ -270,7 +272,7 @@ public class LSMRTreeWithAntiMatterTuplesSearchCursor extends LSMIndexSearchCurs
                     return false;
                 }
             } finally {
-                btreeCursors[i].close();
+                btreeCursors[i].destroy();
             }
         }
         return true;

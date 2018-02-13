@@ -19,7 +19,6 @@
 package org.apache.hyracks.storage.am.lsm.btree.impls;
 
 import org.apache.hyracks.api.dataflow.value.IBinaryComparatorFactory;
-import org.apache.hyracks.api.exceptions.HyracksDataException;
 import org.apache.hyracks.storage.am.btree.api.IBTreeLeafFrame;
 import org.apache.hyracks.storage.am.common.api.ITreeIndexFrameFactory;
 import org.apache.hyracks.storage.am.lsm.common.api.ILSMHarness;
@@ -73,10 +72,5 @@ public class ExternalBTreeOpContext extends AbstractLSMIndexOperationContext {
 
     public LSMBTreeCursorInitialState getSearchInitialState() {
         return searchInitialState;
-    }
-
-    @Override
-    public void destroy() throws HyracksDataException {
-        // No Op
     }
 }

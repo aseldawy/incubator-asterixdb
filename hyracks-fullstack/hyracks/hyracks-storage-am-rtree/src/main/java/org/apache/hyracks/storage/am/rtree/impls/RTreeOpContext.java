@@ -62,7 +62,6 @@ public class RTreeOpContext implements IIndexOperationContext, IExtraPageBlockHe
     private IModificationOperationCallback modificationCallback;
 
     private PermutingTupleReference tupleWithNonIndexFields;
-    private boolean destroyed = false;
 
     public RTreeOpContext(IRTreeLeafFrame leafFrame, IRTreeInteriorFrame interiorFrame, IPageManager freePageManager,
             IBinaryComparatorFactory[] cmpFactories, IModificationOperationCallback modificationCallback) {
@@ -207,16 +206,5 @@ public class RTreeOpContext implements IIndexOperationContext, IExtraPageBlockHe
 
     public void resetNonIndexFieldsTuple(ITupleReference newValue) {
         tupleWithNonIndexFields.reset(newValue);
-    }
-
-    @Override
-    public void destroy() throws HyracksDataException {
-        if (destroyed) {
-            return;
-        }
-        destroyed = true;
-        if (cursor != null) {
-            cursor.destroy();
-        }
     }
 }
